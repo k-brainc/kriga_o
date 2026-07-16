@@ -161,7 +161,7 @@
   .view-header p{margin:0;color:var(--ink-soft);font-size:13px;}
 
   /* Floor cross-section */
-  .building{display:flex;flex-direction:column-reverse;gap:14px;}
+  .building{display:flex;flex-direction:column;gap:14px;}
   .floor{
     background:#fff;border:1px solid var(--line);border-radius:var(--radius);
     padding:14px 16px 16px;
@@ -310,21 +310,6 @@
   .save-hint{font-size:10.5px;color:#9a9a9a;margin-top:4px;}
   .alert-box{background:var(--alert-soft);border:1px solid #ecc3bd;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#8a2c22;margin-bottom:12px;line-height:1.7;}
 
-  /* Checklist */
-  .cl-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
-  .cl-summary{display:flex;align-items:center;gap:12px;margin-bottom:16px;background:#fff;border:1px solid var(--line);padding:12px 16px;border-radius:12px;}
-  .cl-summary .ring-track{flex:1;height:8px;background:var(--cream-2);border-radius:8px;overflow:hidden;}
-  .cl-summary .ring-fill{height:100%;background:var(--live);}
-  .cl-summary b{font-family:var(--mono);}
-  .cl-group{margin-bottom:16px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 4px;}
-  .cl-group-title{font-size:13px;font-weight:800;color:var(--navy);padding:10px 14px 4px;}
-  .cl-item{display:flex;gap:10px;align-items:flex-start;padding:9px 14px;border-top:1px solid #f2ecdc;}
-  .cl-item:first-of-type{border-top:none;}
-  .cl-item input[type=checkbox]{margin-top:3px;width:16px;height:16px;accent-color:var(--live);flex:none;}
-  .cl-item .cl-text{font-size:13px;line-height:1.5;}
-  .cl-item.checked .cl-text{color:#9a9a9a;text-decoration:line-through;}
-  .cl-item .cl-note{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
-
   /* Venue */
   .venue-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
   .venue-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
@@ -377,7 +362,6 @@
       <button data-view="faculty" title="교강사·자문위원"><span class="ico">✦</span><span class="nav-label">교강사·자문위원</span></button>
       <button data-view="mentors" title="생활멘토"><span class="ico">♥</span><span class="nav-label">생활멘토</span></button>
       <button data-view="safety" title="안전·비상연락망"><span class="ico">✚</span><span class="nav-label">안전·비상연락망</span></button>
-      <button data-view="checklist" title="운영 체크리스트"><span class="ico">☑</span><span class="nav-label">운영 체크리스트</span></button>
       <button data-view="venue" title="공간 안내"><span class="ico">▦</span><span class="nav-label">공간 안내</span></button>
     </div>
 
@@ -485,20 +469,6 @@
       </div>
     </div>
 
-    <!-- CHECKLIST -->
-    <div class="view" id="view-checklist">
-      <div class="view-header">
-        <h1>운영 체크리스트</h1>
-        <p>총괄 체크리스트(2026.07.14 기준) · 체크 상태는 저장되어 모든 운영진과 공유됩니다</p>
-      </div>
-      <div class="cl-summary">
-        <b id="clCountLabel">0 / 0</b>
-        <div class="ring-track"><div class="ring-fill" id="clRing" style="width:0%;"></div></div>
-        <button class="filter-btn" id="clReset">전체 초기화</button>
-      </div>
-      <div id="checklistWrap"></div>
-    </div>
-
     <!-- VENUE -->
     <div class="view" id="view-venue">
       <div class="view-header">
@@ -553,7 +523,7 @@ const ROOMS = {
   'F4-406' : {floor:'4F', name:'406호 · 교무실', type:'amenity', icon:'🗂️', facilities:['운영·교강사 사무 공간']},
   'F4-WC'   : {floor:'4F', name:'화장실', type:'amenity', icon:'🚻', facilities:['무용실 인근']},
 };
-const FLOOR_ORDER = ['1F','2F','4F'];
+const FLOOR_ORDER = ['4F','2F','1F'];
 
 // 각 실별 인근 편의시설(화장실·휴게실) 안내용
 const NEARBY = {
@@ -677,64 +647,6 @@ const SCHEDULE = [
   ]},
 ];
 
-// 총괄 체크리스트 (2026.07.14)
-const CHECKLIST = [
-  {cat:'숙박 및 의전', items:[
-    {id:'c1',text:'홀리데이인 호텔 예약',note:'예약 완료, 본인 성함으로 지정된 날짜에 체크인/아웃'},
-    {id:'c2',text:'운영 스텝 숙박',note:'행사장과 가까운 곳으로 예약'},
-    {id:'c3',text:'생활 멘토 숙박',note:'모두 광주 거주로 숙박 불필요'},
-  ]},
-  {cat:'수송 및 이동', items:[
-    {id:'c4',text:'연사 수송',note:'등교 08:40 홀리데이인 출발 / 하교 19:00 교육원 출발'},
-    {id:'c5',text:'연구원 수송',note:'등교 08:00 / 하교 19:30'},
-    {id:'c6',text:'스텝 이동',note:'대중교통 및 도보, 현장 차량 상황에 따라 조정'},
-    {id:'c7',text:'주차권',note:'16일 현지 구매 예정 (2/4/8시간권 혼합 사용)'},
-  ]},
-  {cat:'운영인력', items:[
-    {id:'c8',text:'운영인력 섭외',note:'15일까지 섭외 완료 목표'},
-    {id:'c9',text:'생활멘토 6명',note:'섭외 완료, 16일 16:00~17:00 사전교육 · 조편성 예정'},
-    {id:'c10',text:'구급인력',note:'구급차 10:00~19:00 건물 앞 주차장 대기'},
-    {id:'c11',text:'리에종',note:'원해림 확정, 15일 08:25 도착 예정'},
-  ]},
-  {cat:'의전', items:[
-    {id:'c12',text:'해외 연수(나디아 교수) 수송',note:'15일 08:00 공항 제1터미널 승합차 대기'},
-  ]},
-  {cat:'제작물', items:[
-    {id:'c13',text:'포토월 / 외부현수막 / 포스터 / 현수막 / 리플렛 / X배너',note:'컨펌 완료, 제작 중 → 16일 현장 세팅'},
-    {id:'c14',text:'명찰 (학생·스텝)',note:'17일 새벽 현장 세팅'},
-    {id:'c15',text:'기념품 (텀블러·보조배터리·우산)',note:'텀블러·보조배터리 제작 완료, 우산 배송중'},
-  ]},
-  {cat:'F&B', items:[
-    {id:'c16',text:'도시락',note:'점심 한식 확정 · 저녁 학생+생활멘토+교강사 샌드위치'},
-    {id:'c17',text:'간식/음료',note:'구매 완료, 교강사 대기실 16일 저녁 세팅 / 합주실 17일 세팅'},
-  ]},
-  {cat:'시스템', items:[
-    {id:'c18',text:'영상시스템',note:'컨트롤 준비 완료, 오프닝 영상 수령 후 16일 테스트'},
-    {id:'c19',text:'음향시스템',note:'BG·전반 음향 컨트롤 및 감독 섭외 완료, 무용실1,2 USB 시스템 점검'},
-    {id:'c20',text:'조명시스템 / 연출',note:'섭외 완료, 16일 현장 테스트 및 리허설'},
-    {id:'c21',text:'WIFI',note:'유선 개통 확인, WIFI 렌탈·설치 기사 섭외 완료'},
-  ]},
-  {cat:'렌탈·운영물품', items:[
-    {id:'c22',text:'물품 렌탈 (테이블·의자·프린터 등)',note:'리스트 확정, 16일 세팅'},
-    {id:'c23',text:'운영물품 (테이프·가위·네임펜 등)',note:'현장 물품 준비'},
-    {id:'c24',text:'분실물 관리',note:'운영사무국 접수·보관'},
-  ]},
-  {cat:'공간', items:[
-    {id:'c25',text:'합주실 운영사무국 세팅',note:'24~32석'},
-    {id:'c26',text:'합주실 휴식·성장노트 공간',note:'31석 T자 형태 세팅'},
-    {id:'c27',text:'교수 휴게실',note:'다과·음료 준비 완료, 16일 저녁 세팅'},
-    {id:'c28',text:'강당 WIFI (예비 에그)',note:'16일 세팅 예정'},
-  ]},
-  {cat:'운영', items:[
-    {id:'c29',text:'환경 미화',note:'청소도구 준비, 수업 중 수시 정리'},
-    {id:'c30',text:'보험',note:'부상시 1인당 최대 500만원(총 2,000만원), 15일 이전 가입'},
-    {id:'c31',text:'물품 구매 대응',note:'주변 상가 사전 조사'},
-  ]},
-  {cat:'교육자료', items:[
-    {id:'c32',text:'이론교육 자료 (Level 1,2)',note:'수령 후 클리어파일·클립보드·볼펜과 함께 준비'},
-  ]},
-];
-
 /* =====================================================================
    STATE
 ===================================================================== */
@@ -745,7 +657,6 @@ let state = {
   previewMinutes: 600,    // minutes from 00:00, for preview slider
   navMode: 'full',        // 'full' | 'compact' — left sidebar nav display mode
   floorIdx: 0,            // which floor tab is active on narrow screens (홈 view)
-  checklistState: {},
   contacts: {},
 };
 
@@ -1201,49 +1112,6 @@ function renderContacts(){
 }
 
 /* =====================================================================
-   RENDER: CHECKLIST VIEW
-===================================================================== */
-function renderChecklist(){
-  const wrap = document.getElementById('checklistWrap');
-  wrap.innerHTML = CHECKLIST.map(group=>`
-    <div class="cl-group">
-      <div class="cl-group-title">${group.cat}</div>
-      ${group.items.map(item=>`
-        <div class="cl-item ${state.checklistState[item.id] ? 'checked':''}" data-id="${item.id}">
-          <input type="checkbox" ${state.checklistState[item.id]?'checked':''}>
-          <div>
-            <div class="cl-text">${item.text}</div>
-            <div class="cl-note">${item.note}</div>
-          </div>
-        </div>`).join('')}
-    </div>`).join('');
-
-  wrap.querySelectorAll('.cl-item').forEach(el=>{
-    const id = el.getAttribute('data-id');
-    const cb = el.querySelector('input');
-    cb.addEventListener('change', async ()=>{
-      state.checklistState[id] = cb.checked;
-      el.classList.toggle('checked', cb.checked);
-      await saveShared('ops-checklist', state.checklistState);
-      updateChecklistSummary();
-    });
-  });
-  updateChecklistSummary();
-}
-function updateChecklistSummary(){
-  const total = CHECKLIST.reduce((n,g)=>n+g.items.length,0);
-  const done = Object.values(state.checklistState).filter(Boolean).length;
-  document.getElementById('clCountLabel').textContent = `${done} / ${total}`;
-  document.getElementById('clRing').style.width = (total? Math.round(done/total*100):0) + '%';
-}
-document.getElementById('clReset').addEventListener('click', async ()=>{
-  if(!confirm('모든 체크리스트 항목을 초기화할까요?')) return;
-  state.checklistState = {};
-  await saveShared('ops-checklist', state.checklistState);
-  renderChecklist();
-});
-
-/* =====================================================================
    RENDER: VENUE VIEW
 ===================================================================== */
 function renderVenue(){
@@ -1273,8 +1141,12 @@ document.getElementById('navList').addEventListener('click', (e)=>{
   if(view==='mentors') renderMentors();
   if(view==='faculty') renderFaculty();
   if(view==='safety') renderContacts();
-  if(view==='checklist') renderChecklist();
   if(view==='venue') renderVenue();
+
+  // On narrow screens, collapse to compact (icon-only) nav right after picking a menu item
+  if(window.innerWidth < 880 && state.navMode === 'full'){
+    setNavMode('compact', true);
+  }
 });
 
 document.getElementById('pSearch').addEventListener('input', renderParticipants);
@@ -1322,7 +1194,6 @@ function render(){
 }
 
 async function init(){
-  state.checklistState = await loadShared('ops-checklist', {});
   state.contacts = await loadShared('ops-contacts', {});
 
   // auto-detect today
