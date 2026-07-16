@@ -73,14 +73,26 @@
   .time-slider{accent-color:var(--gold);width:120px;}
 
   /* ===== Layout ===== */
-  .layout{display:grid;grid-template-columns:300px 1fr;gap:0;min-height:calc(100vh - 64px);}
-  @media (max-width:880px){ .layout{grid-template-columns:1fr;} }
+  .layout{display:grid;grid-template-columns:300px 1fr;gap:0;min-height:calc(100vh - 64px);align-items:start;}
+  .layout.compact-nav{grid-template-columns:64px 1fr;}
 
-  /* ===== Sidebar ===== */
+  /* ===== Sidebar (sticky: stays visible while the main panel scrolls) ===== */
   .sidebar{
     background:var(--navy);color:#fff;padding:18px 16px 24px;
     border-right:1px solid #0d1c29;
+    position:sticky;top:var(--topbar-h, 64px);
+    height:calc(100vh - var(--topbar-h, 64px));
+    overflow-y:auto;overflow-x:hidden;
+    transition:padding .15s;
+    z-index:30;
   }
+  .nav-toggle-btn{
+    display:flex;align-items:center;gap:10px;width:100%;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#e7ebf1;
+    padding:10px 12px;border-radius:9px;margin-bottom:14px;font-size:12.5px;font-weight:700;
+  }
+  .nav-toggle-btn:hover{background:rgba(255,255,255,.14);}
+  .nav-toggle-btn .ico{width:18px;text-align:center;font-size:14px;flex:none;}
   .now-card{
     background:linear-gradient(160deg,var(--navy-3),var(--navy-2));
     border:1px solid rgba(217,173,87,.35);
@@ -118,12 +130,23 @@
   .nav button{
     text-align:left;padding:10px 12px;border-radius:9px;border:none;background:transparent;
     color:#c7d0dd;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;
+    width:100%;
   }
   .nav button:hover{background:rgba(255,255,255,.06);}
   .nav button.active{background:var(--gold);color:var(--navy);}
-  .nav .ico{width:18px;text-align:center;font-size:14px;}
+  .nav .ico{width:18px;text-align:center;font-size:14px;flex:none;}
+  .nav-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 
   .sidebar-footer{margin-top:20px;font-size:10.5px;color:#7f8aa0;line-height:1.6;border-top:1px solid rgba(255,255,255,.1);padding-top:12px;}
+
+  /* ===== Compact (icon-only) nav mode ===== */
+  .layout.compact-nav .sidebar{padding-left:8px;padding-right:8px;}
+  .layout.compact-nav .now-card,
+  .layout.compact-nav .next-card,
+  .layout.compact-nav .sidebar-footer{display:none;}
+  .layout.compact-nav .nav-toggle-btn{justify-content:center;}
+  .layout.compact-nav .nav button{justify-content:center;padding:12px 0;}
+  .layout.compact-nav .nav-label{display:none;}
 
   /* ===== Main ===== */
   .main{padding:22px 26px 60px;}
@@ -321,23 +344,27 @@
   </div>
 </div>
 
-<div class="layout">
+<div class="layout" id="layoutRoot">
   <!-- SIDEBAR -->
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
+    <button class="nav-toggle-btn" id="navModeToggle" title="보기 모드 전환">
+      <span class="ico">☰</span><span class="nav-label" id="navModeLabel">간단모드로 보기</span>
+    </button>
+
     <div class="now-card" id="nowCard">
       <!-- filled by JS -->
     </div>
     <div class="next-card" id="nextCard"></div>
 
     <div class="nav" id="navList">
-      <button data-view="home" class="active"><span class="ico">◈</span>홈 · 층별 현황</button>
-      <button data-view="schedule"><span class="ico">▤</span>전체 일정</button>
-      <button data-view="participants"><span class="ico">◍</span>참가자 명단</button>
-      <button data-view="faculty"><span class="ico">✦</span>교강사·자문위원</button>
-      <button data-view="mentors"><span class="ico">♥</span>생활멘토</button>
-      <button data-view="safety"><span class="ico">✚</span>안전·비상연락망</button>
-      <button data-view="checklist"><span class="ico">☑</span>운영 체크리스트</button>
-      <button data-view="venue"><span class="ico">▦</span>공간 안내</button>
+      <button data-view="home" class="active" title="홈 · 층별 현황"><span class="ico">◈</span><span class="nav-label">홈 · 층별 현황</span></button>
+      <button data-view="schedule" title="전체 일정"><span class="ico">▤</span><span class="nav-label">전체 일정</span></button>
+      <button data-view="participants" title="참가자 명단"><span class="ico">◍</span><span class="nav-label">참가자 명단</span></button>
+      <button data-view="faculty" title="교강사·자문위원"><span class="ico">✦</span><span class="nav-label">교강사·자문위원</span></button>
+      <button data-view="mentors" title="생활멘토"><span class="ico">♥</span><span class="nav-label">생활멘토</span></button>
+      <button data-view="safety" title="안전·비상연락망"><span class="ico">✚</span><span class="nav-label">안전·비상연락망</span></button>
+      <button data-view="checklist" title="운영 체크리스트"><span class="ico">☑</span><span class="nav-label">운영 체크리스트</span></button>
+      <button data-view="venue" title="공간 안내"><span class="ico">▦</span><span class="nav-label">공간 안내</span></button>
     </div>
 
     <div class="sidebar-footer">
@@ -701,6 +728,7 @@ let state = {
   selectedDayIdx: 0,      // top-bar day (only used in preview mode)
   scheduleDayIdx: 0,      // which day column is active in the 일정 tab on narrow screens
   previewMinutes: 600,    // minutes from 00:00, for preview slider
+  navMode: 'full',        // 'full' | 'compact' — left sidebar nav display mode
   checklistState: {},
   contacts: {},
 };
@@ -716,6 +744,16 @@ async function loadShared(key, fallback){
 }
 async function saveShared(key, value){
   try{ await window.storage.set(key, JSON.stringify(value), true); }
+  catch(e){ console.error('storage save failed', e); }
+}
+async function loadPersonal(key, fallback){
+  try{
+    const r = await window.storage.get(key, false);
+    return r ? JSON.parse(r.value) : fallback;
+  }catch(e){ return fallback; }
+}
+async function savePersonal(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), false); }
   catch(e){ console.error('storage save failed', e); }
 }
 
@@ -1261,8 +1299,39 @@ async function init(){
   const idx = findDayIndexByDate(now.toISOString().slice(0,10));
   state.selectedDayIdx = idx>=0 ? idx : 0;
 
+  await initNavMode();
+  measureTopbarHeight();
+  window.addEventListener('resize', measureTopbarHeight);
+
   render();
   setInterval(()=>{ if(state.mode==='live') tick(); }, 15000);
+}
+
+function measureTopbarHeight(){
+  const tb = document.querySelector('.topbar');
+  if(tb) document.documentElement.style.setProperty('--topbar-h', tb.offsetHeight + 'px');
+}
+
+function setNavMode(mode, persist){
+  const root = document.getElementById('layoutRoot');
+  const isCompact = mode === 'compact';
+  root.classList.toggle('compact-nav', isCompact);
+  const label = document.getElementById('navModeLabel');
+  if(label) label.textContent = isCompact ? '풀 모드로 보기' : '간단모드로 보기';
+  const btn = document.getElementById('navModeToggle');
+  if(btn) btn.setAttribute('title', isCompact ? '풀 모드로 보기' : '간단모드로 보기');
+  state.navMode = mode;
+  if(persist) savePersonal('nav-mode', mode);
+}
+
+async function initNavMode(){
+  const btn = document.getElementById('navModeToggle');
+  if(btn){
+    btn.addEventListener('click', ()=> setNavMode(state.navMode === 'compact' ? 'full' : 'compact', true));
+  }
+  const saved = await loadPersonal('nav-mode', null);
+  const initialMode = saved || (window.innerWidth < 880 ? 'compact' : 'full');
+  setNavMode(initialMode, false);
 }
 init();
 </script>
