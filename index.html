@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>K예술영재 무용워크숍 · 운영보드</title>
+<style>
+  :root{
+    --navy:#122536;
+    --navy-2:#1b3a52;
+    --navy-3:#24496a;
+    --gold:#d9ad57;
+    --gold-soft:#f0dcae;
+    --cream:#faf6ee;
+    --cream-2:#f2ecdd;
+    --ink:#1c1c1c;
+    --ink-soft:#5b5f66;
+    --line:#e4ddca;
+    --live:#2f9e6e;
+    --live-soft:#e2f4ec;
+    --upcoming:#8b93a6;
+    --upcoming-soft:#eceef2;
+    --done:#c7ccd6;
+    --alert:#c0392b;
+    --alert-soft:#fbe8e6;
+    --radius:14px;
+    --mono: 'SFMono-Regular','Roboto Mono','Consolas',monospace;
+    --sans: -apple-system,'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--cream);color:var(--ink);font-family:var(--sans);}
+  body{min-height:100vh;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:#c9c1a8;border-radius:8px;}
+
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    background:linear-gradient(180deg,var(--navy) 0%, var(--navy-2) 100%);
+    color:#fff;
+    padding:14px 20px;
+    display:flex;align-items:center;gap:16px;
+    flex-wrap:wrap;
+    border-bottom:3px solid var(--gold);
+    position:sticky;top:0;z-index:50;
+  }
+  .brand{display:flex;align-items:center;gap:10px;margin-right:auto;}
+  .brand .mark{
+    width:34px;height:34px;border-radius:9px;
+    background:var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:var(--navy);font-size:15px;flex:none;
+  }
+  .brand .title{font-weight:700;font-size:15px;letter-spacing:.2px;}
+  .brand .sub{font-size:11px;color:var(--gold-soft);font-weight:500;}
+
+  .day-tabs{display:flex;gap:6px;background:rgba(255,255,255,.08);padding:4px;border-radius:10px;}
+  .day-tab{
+    padding:7px 12px;border-radius:7px;border:none;background:transparent;color:#cfd8e3;
+    font-size:12.5px;font-weight:600;
+  }
+  .day-tab.active{background:var(--gold);color:var(--navy);}
+
+  .time-box{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);padding:6px 10px;border-radius:10px;}
+  .time-box .clock{font-family:var(--mono);font-size:14px;font-weight:600;letter-spacing:.5px;}
+  .mode-btn{
+    font-size:11px;border:1px solid rgba(255,255,255,.35);background:transparent;color:#fff;
+    padding:5px 9px;border-radius:7px;font-weight:600;
+  }
+  .mode-btn.on{background:var(--gold);color:var(--navy);border-color:var(--gold);}
+  .time-slider{accent-color:var(--gold);width:120px;}
+
+  /* ===== Layout ===== */
+  .layout{display:grid;grid-template-columns:300px 1fr;gap:0;min-height:calc(100vh - 64px);}
+  @media (max-width:880px){ .layout{grid-template-columns:1fr;} }
+
+  /* ===== Sidebar ===== */
+  .sidebar{
+    background:var(--navy);color:#fff;padding:18px 16px 24px;
+    border-right:1px solid #0d1c29;
+  }
+  .now-card{
+    background:linear-gradient(160deg,var(--navy-3),var(--navy-2));
+    border:1px solid rgba(217,173,87,.35);
+    border-radius:var(--radius);
+    padding:16px;margin-bottom:14px;
+    position:relative;overflow:hidden;
+  }
+  .now-card .eyebrow{
+    font-size:11px;color:var(--gold-soft);font-weight:700;letter-spacing:.6px;
+    display:flex;align-items:center;gap:6px;margin-bottom:8px;text-transform:uppercase;
+  }
+  .live-dot{width:8px;height:8px;border-radius:50%;background:var(--live);box-shadow:0 0 0 0 rgba(47,158,110,.6);animation:pulse 1.8s infinite;}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(47,158,110,.55);}
+    70%{box-shadow:0 0 0 8px rgba(47,158,110,0);}
+    100%{box-shadow:0 0 0 0 rgba(47,158,110,0);}
+  }
+  .now-card h2{font-size:19px;margin:0 0 4px;font-weight:800;line-height:1.3;}
+  .now-card .meta{font-size:12.5px;color:#c7d0dd;margin-bottom:10px;line-height:1.6;}
+  .now-card .meta b{color:#fff;}
+  .progress-track{height:6px;border-radius:6px;background:rgba(255,255,255,.14);overflow:hidden;margin-bottom:6px;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),#f0cf87);border-radius:6px;transition:width .4s;}
+  .progress-label{font-size:11px;color:#a9b4c4;display:flex;justify-content:space-between;}
+  .empty-note{font-size:12.5px;color:#c7d0dd;line-height:1.6;}
+
+  .next-card{
+    border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);
+    padding:12px 14px;margin-bottom:18px;background:rgba(255,255,255,.03);
+  }
+  .next-card .eyebrow{font-size:10.5px;color:#9aa6b8;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;}
+  .next-card .name{font-size:14px;font-weight:700;}
+  .next-card .time{font-size:11.5px;color:#9aa6b8;}
+
+  .nav{display:flex;flex-direction:column;gap:3px;}
+  .nav button{
+    text-align:left;padding:10px 12px;border-radius:9px;border:none;background:transparent;
+    color:#c7d0dd;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;
+  }
+  .nav button:hover{background:rgba(255,255,255,.06);}
+  .nav button.active{background:var(--gold);color:var(--navy);}
+  .nav .ico{width:18px;text-align:center;font-size:14px;}
+
+  .sidebar-footer{margin-top:20px;font-size:10.5px;color:#7f8aa0;line-height:1.6;border-top:1px solid rgba(255,255,255,.1);padding-top:12px;}
+
+  /* ===== Main ===== */
+  .main{padding:22px 26px 60px;}
+  .view{display:none;}
+  .view.active{display:block;animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .view-header{margin-bottom:18px;}
+  .view-header h1{font-size:21px;margin:0 0 4px;font-weight:800;}
+  .view-header p{margin:0;color:var(--ink-soft);font-size:13px;}
+
+  /* Floor cross-section */
+  .building{display:flex;flex-direction:column-reverse;gap:14px;}
+  .floor{
+    background:#fff;border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 16px 16px;
+  }
+  .floor-head{display:flex;align-items:baseline;gap:8px;margin-bottom:10px;}
+  .floor-badge{
+    font-family:var(--mono);font-weight:800;font-size:13px;background:var(--navy);color:#fff;
+    padding:3px 9px;border-radius:7px;
+  }
+  .floor-name{font-size:13px;color:var(--ink-soft);font-weight:600;}
+  .rooms-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;}
+
+  .room-card{
+    border:1.5px solid var(--line);border-radius:12px;padding:12px 13px;background:var(--cream);
+    cursor:pointer;transition:transform .15s, box-shadow .15s;position:relative;
+  }
+  .room-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(20,30,40,.08);}
+  .room-card.live{border-color:var(--live);background:var(--live-soft);}
+  .room-card.upcoming{border-color:#dcd3b5;}
+  .room-card .r-name{font-weight:800;font-size:14px;margin-bottom:4px;}
+  .room-card .r-session{font-size:12.5px;color:var(--ink-soft);margin-bottom:8px;min-height:16px;}
+  .status-pill{
+    display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;
+    padding:3px 8px;border-radius:20px;
+  }
+  .status-pill.live{background:var(--live);color:#fff;}
+  .status-pill.upcoming{background:var(--upcoming-soft);color:var(--upcoming);}
+  .status-pill.done{background:#eee;color:#9a9a9a;}
+  .status-pill .dot{width:6px;height:6px;border-radius:50%;background:#fff;}
+  .r-sub{font-size:11px;color:#8a8f98;margin-top:6px;}
+
+  /* Modal */
+  .overlay{
+    position:fixed;inset:0;background:rgba(15,25,35,.5);z-index:100;
+    display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:#fff;border-radius:16px;max-width:560px;width:100%;padding:0;overflow:hidden;
+    box-shadow:0 30px 60px rgba(0,0,0,.3);
+  }
+  .modal-head{background:var(--navy);color:#fff;padding:18px 22px;position:relative;}
+  .modal-head h3{margin:0 0 4px;font-size:18px;}
+  .modal-head .m-sub{font-size:12.5px;color:var(--gold-soft);}
+  .modal-close{position:absolute;top:14px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;
+    width:26px;height:26px;border-radius:50%;font-size:14px;}
+  .modal-body{padding:18px 22px 22px;max-height:70vh;overflow:auto;}
+  .modal-section{margin-bottom:16px;}
+  .modal-section h4{font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:var(--ink-soft);margin:0 0 8px;}
+  .chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+  .chip{background:var(--cream-2);border:1px solid var(--line);padding:5px 10px;border-radius:20px;font-size:12px;}
+  .people-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:6px;}
+  .person-tag{background:var(--cream-2);border-radius:8px;padding:6px 8px;font-size:12px;text-align:center;}
+  .person-tag .school{display:block;font-size:10px;color:var(--ink-soft);margin-top:1px;}
+  .facility-list{list-style:none;margin:0;padding:0;font-size:13px;line-height:1.9;}
+  .facility-list li:before{content:"·";color:var(--gold);font-weight:900;margin-right:6px;}
+
+  /* Schedule table */
+  .sched-day{margin-bottom:26px;}
+  .sched-day h3{font-size:15px;margin:0 0 10px;background:var(--navy);color:#fff;display:inline-block;padding:5px 14px;border-radius:20px;}
+  table.grid-table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);}
+  table.grid-table th{background:var(--cream-2);font-size:12px;padding:8px;text-align:left;border-bottom:1px solid var(--line);}
+  table.grid-table td{padding:9px 8px;font-size:13px;border-bottom:1px solid #f0ead9;vertical-align:top;}
+  table.grid-table tr:last-child td{border-bottom:none;}
+  .t-time{font-family:var(--mono);font-weight:700;color:var(--navy);white-space:nowrap;}
+
+  /* Participants */
+  .toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .toolbar input[type=text]{
+    flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px;background:#fff;
+  }
+  .filter-btn{padding:8px 13px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:600;color:var(--ink-soft);}
+  .filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .p-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .p-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px;}
+  .p-card .p-name{font-weight:800;font-size:14px;}
+  .p-card .p-school{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .p-card .p-group{margin-top:8px;}
+
+  /* Faculty */
+  .fac-section{margin-bottom:24px;}
+  .fac-section h3{font-size:14px;color:var(--navy);border-bottom:2px solid var(--gold-soft);padding-bottom:6px;margin-bottom:12px;}
+  .fac-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+  .fac-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 14px;}
+  .fac-card .f-name{font-weight:800;font-size:14.5px;}
+  .fac-card .f-role{font-size:12px;color:var(--gold);font-weight:700;margin:2px 0 6px;}
+  .fac-card ul{margin:0;padding-left:16px;font-size:12px;color:var(--ink-soft);line-height:1.7;}
+
+  /* Safety */
+  .safety-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:760px){.safety-grid{grid-template-columns:1fr;}}
+  .card-box{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;}
+  .card-box h3{font-size:14px;margin:0 0 10px;color:var(--navy);}
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;margin-bottom:10px;}
+  .flow span{background:var(--cream-2);padding:5px 9px;border-radius:8px;}
+  .flow .arrow{color:var(--gold);font-weight:900;}
+  .contact-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--line);gap:10px;}
+  .contact-row:last-child{border-bottom:none;}
+  .contact-row .c-role{font-weight:700;font-size:13px;}
+  .contact-row .c-name{font-size:12px;color:var(--ink-soft);}
+  .contact-row input{
+    border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:12.5px;width:130px;font-family:var(--mono);
+  }
+  .save-hint{font-size:10.5px;color:#9a9a9a;margin-top:4px;}
+  .alert-box{background:var(--alert-soft);border:1px solid #ecc3bd;border-radius:10px;padding:10px 12px;font-size:12.5px;color:#8a2c22;margin-bottom:12px;line-height:1.7;}
+
+  /* Checklist */
+  .cl-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .cl-summary{display:flex;align-items:center;gap:12px;margin-bottom:16px;background:#fff;border:1px solid var(--line);padding:12px 16px;border-radius:12px;}
+  .cl-summary .ring-track{flex:1;height:8px;background:var(--cream-2);border-radius:8px;overflow:hidden;}
+  .cl-summary .ring-fill{height:100%;background:var(--live);}
+  .cl-summary b{font-family:var(--mono);}
+  .cl-group{margin-bottom:16px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 4px;}
+  .cl-group-title{font-size:13px;font-weight:800;color:var(--navy);padding:10px 14px 4px;}
+  .cl-item{display:flex;gap:10px;align-items:flex-start;padding:9px 14px;border-top:1px solid #f2ecdc;}
+  .cl-item:first-of-type{border-top:none;}
+  .cl-item input[type=checkbox]{margin-top:3px;width:16px;height:16px;accent-color:var(--live);flex:none;}
+  .cl-item .cl-text{font-size:13px;line-height:1.5;}
+  .cl-item.checked .cl-text{color:#9a9a9a;text-decoration:line-through;}
+  .cl-item .cl-note{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+
+  /* Venue */
+  .venue-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
+  .venue-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
+  .venue-card h4{margin:0 0 8px;color:var(--navy);font-size:14.5px;}
+  .venue-card ul{margin:0;padding-left:16px;font-size:13px;line-height:1.8;color:var(--ink-soft);}
+
+  .badge-live-top{
+    display:inline-flex;align-items:center;gap:6px;background:var(--live);color:#fff;font-size:11px;font-weight:700;
+    padding:3px 9px;border-radius:20px;margin-left:8px;
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="mark">K</div>
+    <div>
+      <div class="title">2026 K예술영재 프로젝트 · 무용 워크숍 운영보드</div>
+      <div class="sub">한국예술영재교육원 광주캠퍼스 · 7.17(금)–7.19(일)</div>
+    </div>
+  </div>
+  <div class="day-tabs" id="dayTabs"></div>
+  <div class="time-box">
+    <button class="mode-btn on" id="modeLive">실시간</button>
+    <button class="mode-btn" id="modePreview">시간 미리보기</button>
+    <input type="range" class="time-slider" id="timeSlider" min="540" max="1140" step="10" value="600" style="display:none;">
+    <span class="clock" id="clockDisplay">--:--</span>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="now-card" id="nowCard">
+      <!-- filled by JS -->
+    </div>
+    <div class="next-card" id="nextCard"></div>
+
+    <div class="nav" id="navList">
+      <button data-view="home" class="active"><span class="ico">◈</span>홈 · 층별 현황</button>
+      <button data-view="schedule"><span class="ico">▤</span>전체 일정</button>
+      <button data-view="participants"><span class="ico">◍</span>참가자 명단</button>
+      <button data-view="faculty"><span class="ico">✦</span>교강사·자문위원</button>
+      <button data-view="safety"><span class="ico">✚</span>안전·비상연락망</button>
+      <button data-view="checklist"><span class="ico">☑</span>운영 체크리스트</button>
+      <button data-view="venue"><span class="ico">▦</span>공간 안내</button>
+    </div>
+
+    <div class="sidebar-footer">
+      한국예술영재교육원 운영사무국<br>
+      조주현 원장 · 이승진 실장 · 현은지 팀장<br>
+      강지원 · 김도원 · 방경난 연구원
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- HOME -->
+    <div class="view active" id="view-home">
+      <div class="view-header">
+        <h1>층별 현황판</h1>
+        <p>호실을 클릭하면 현재(또는 선택된 시각) 진행 중인 세션의 학생 그룹·담당 강사·시설 체크리스트를 볼 수 있어요.</p>
+      </div>
+      <div class="building" id="buildingWrap"></div>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="view" id="view-schedule">
+      <div class="view-header">
+        <h1>전체 일정</h1>
+        <p>리플렛 시간표 기준 (사정에 의해 변동될 수 있습니다)</p>
+      </div>
+      <div id="scheduleWrap"></div>
+    </div>
+
+    <!-- PARTICIPANTS -->
+    <div class="view" id="view-participants">
+      <div class="view-header">
+        <h1>참가자 명단 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;" id="pCount"></span></h1>
+        <p>무용 분야 워크숍 참가자 · 학교/조 편성 검색</p>
+      </div>
+      <div class="toolbar">
+        <input type="text" id="pSearch" placeholder="이름 또는 학교로 검색...">
+        <button class="filter-btn active" data-group="all">전체</button>
+        <button class="filter-btn" data-group="무용실1">무용실1 그룹</button>
+        <button class="filter-btn" data-group="무용실2">무용실2 그룹</button>
+      </div>
+      <div class="p-grid" id="pGrid"></div>
+    </div>
+
+    <!-- FACULTY -->
+    <div class="view" id="view-faculty">
+      <div class="view-header">
+        <h1>교강사 · 자문위원</h1>
+        <p>무용 분야 워크숍 관련 교수진 · 자문위원 정보</p>
+      </div>
+      <div id="facultyWrap"></div>
+    </div>
+
+    <!-- SAFETY -->
+    <div class="view" id="view-safety">
+      <div class="view-header">
+        <h1>안전 · 비상연락망</h1>
+        <p>실제 전화번호는 현장 확정 시 아래에서 직접 입력하면 운영팀 전체에 공유됩니다.</p>
+      </div>
+      <div class="alert-box">
+        ⚠ 비상시 엘리베이터 탑승 금지 — 운영스텝 안내에 따라 이동 · 구급차는 오전 10:00~19:00 건물 앞 주차장 상시 대기
+      </div>
+      <div class="safety-grid">
+        <div class="card-box">
+          <h3>응급상황 대응 흐름</h3>
+          <div class="flow">
+            <span>응급상황 발생</span><span class="arrow">→</span>
+            <span>초동조치(응급구조사)</span><span class="arrow">→</span>
+            <span>안전총괄 보고</span><span class="arrow">→</span>
+            <span>구급차 출동</span><span class="arrow">→</span>
+            <span>협력병원 이송</span><span class="arrow">→</span>
+            <span>보호자/발주처 보고</span><span class="arrow">→</span>
+            <span>상황종료 · 종결보고</span>
+          </div>
+          <div style="font-size:12.5px;color:var(--ink-soft);line-height:1.7;">
+            협력병원: <b>전남대학교병원</b> · <b>조선대학교병원</b><br>
+            현장에 응급구조사 상주, 구급차는 건물 앞 주차장 대기
+          </div>
+        </div>
+        <div class="card-box">
+          <h3>비상 연락처 (현장 입력)</h3>
+          <div id="contactList"></div>
+          <div class="save-hint">※ 입력 즉시 저장되며 이 화면을 보는 모든 운영진에게 공유됩니다.</div>
+        </div>
+      </div>
+      <div class="card-box" style="margin-top:16px;">
+        <h3>학부모 안내 원칙 (리플렛 발췌)</h3>
+        <ul class="facility-list">
+          <li>아프거나 몸에 이상이 있으면 언제든지 생활멘토 또는 운영진에게 알리기</li>
+          <li>수업시간에 맞춰 교실 입장 · 교수진과 생활멘토 안내를 따르기</li>
+          <li>위험한 행동이나 수업 방해 행동 금지</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div class="view" id="view-checklist">
+      <div class="view-header">
+        <h1>운영 체크리스트</h1>
+        <p>총괄 체크리스트(2026.07.14 기준) · 체크 상태는 저장되어 모든 운영진과 공유됩니다</p>
+      </div>
+      <div class="cl-summary">
+        <b id="clCountLabel">0 / 0</b>
+        <div class="ring-track"><div class="ring-fill" id="clRing" style="width:0%;"></div></div>
+        <button class="filter-btn" id="clReset">전체 초기화</button>
+      </div>
+      <div id="checklistWrap"></div>
+    </div>
+
+    <!-- VENUE -->
+    <div class="view" id="view-venue">
+      <div class="view-header">
+        <h1>공간 안내</h1>
+        <p>한국예술영재교육원 광주캠퍼스</p>
+      </div>
+      <div class="venue-grid" id="venueWrap"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ROOM MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <button class="modal-close" id="modalClose">✕</button>
+      <h3 id="modalTitle">호실</h3>
+      <div class="m-sub" id="modalSub"></div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   DATA
+===================================================================== */
+const ROOMS = {
+  'F1-LOBBY': {floor:'1F', name:'로비 · 접수데스크', facilities:['안내 pop / 안내책자 / 명찰 / 웰컴키트 배치','짐 보관함 및 라벨']},
+  'F1-HALL' : {floor:'1F', name:'강당', facilities:['음향·조명 시스템','WIFI(예비 에그 1개)','오프닝/클로징 세리머니 무대']},
+  'F2-ENS'  : {floor:'2F', name:'합주실 (운영사무국·식사공간)', facilities:['운영사무국 좌석 24~32석','참가자 휴식·성장노트 작성 공간 31석','간식/음료 상시 비치']},
+  'F4-DANCE1': {floor:'4F', name:'무용실 1', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
+  'F4-DANCE2': {floor:'4F', name:'무용실 2', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
+  'F4-LOCKER': {floor:'4F', name:'탈의실', facilities:['물품보관대 (이름 라벨)']},
+};
+const FLOOR_ORDER = ['1F','2F','4F'];
+
+// participants: 22 elementary -> 무용실1, 9 middle/homeschool -> 무용실2
+const PARTICIPANTS = [
+  {name:'곽다율',school:'서울동일초',group:'무용실1'},
+  {name:'김라희',school:'다산한강초',group:'무용실1'},
+  {name:'서시온',school:'운리초',group:'무용실1'},
+  {name:'송해솔',school:'제석초',group:'무용실1'},
+  {name:'오하린',school:'태봉초',group:'무용실1'},
+  {name:'윤지우',school:'용남초',group:'무용실1'},
+  {name:'이로울',school:'포항제철초',group:'무용실1'},
+  {name:'이주아',school:'천안희망초',group:'무용실1'},
+  {name:'조하은',school:'상미초',group:'무용실1'},
+  {name:'최세령',school:'동천초',group:'무용실1'},
+  {name:'최아인',school:'서울강빛초',group:'무용실1'},
+  {name:'한채린',school:'윤슬초',group:'무용실1'},
+  {name:'김다해',school:'남양주백봉초',group:'무용실1'},
+  {name:'김서율',school:'수완초',group:'무용실1'},
+  {name:'김주혜',school:'망월초',group:'무용실1'},
+  {name:'나유송',school:'불로초',group:'무용실1'},
+  {name:'문채원',school:'가창초',group:'무용실1'},
+  {name:'박라엘',school:'영광중앙초',group:'무용실1'},
+  {name:'송세잎',school:'율포초',group:'무용실1'},
+  {name:'이소민',school:'솔빛초',group:'무용실1'},
+  {name:'이채윤',school:'두루초',group:'무용실1'},
+  {name:'한예슬',school:'용남초',group:'무용실1'},
+  {name:'맹지유',school:'와부중',group:'무용실2'},
+  {name:'송민경',school:'부곡중',group:'무용실2'},
+  {name:'한그루',school:'선화예중',group:'무용실2'},
+  {name:'김민서',school:'선화예중',group:'무용실2'},
+  {name:'김은채',school:'매성중',group:'무용실2'},
+  {name:'신아윤',school:'선화예중',group:'무용실2'},
+  {name:'권연재',school:'상일중',group:'무용실2'},
+  {name:'이서은',school:'미사강변중',group:'무용실2'},
+  {name:'안하랑',school:'홈스쿨링',group:'무용실2'},
+];
+
+const FACULTY = {
+  '자문위원': [
+    {name:'조주현', role:'한국예술영재교육연구원장', bio:['한국예술영재교육원 무용분야 주임교수','워싱턴 발레단 주역무용수','해외 발레스타 초청공연 예술감독 및 초청안무가']},
+    {name:'김현웅', role:'한국예술종합학교 무용원 교수', bio:['K예술영재 프로젝트 무용분야 자문위원장','러시아 바가노바 국제발레콩쿠르 심사위원','2011 시칠리아 국제발레콩쿠르 베스트 파드되상']},
+    {name:'김주원', role:'대한민국발레축제 대표 겸 예술감독', bio:['부산오페라하우스 발레단 예술감독','전) 국립발레단 수석무용수','제14회 브누아 드 라 당스 최고여성무용수상']},
+    {name:'박기현', role:'강원대학교 무용학과 교수', bio:['국립발레단 발레마스터 역임','대한민국발레축제 자문위원','34회 전국무용제 대상 대통령상, 안무상']},
+    {name:'정옥희', role:'이화여자대학교 무용학연구소 학술연구교수', bio:['현) 한국춤비평가협회 회원','현) 한국무용학회 부회장','전) 유니버설발레단 및 중국광저우발레단 단원']},
+    {name:'유회웅', role:'유회웅리버티홀 예술감독', bio:['엠넷 스테이지 파이터 심사위원','한국발레협회 신인 안무가상','전) 국립발레단 단원']},
+    {name:'송정빈', role:'국립발레단 솔리스트, 안무자', bio:['국립발레단 레파토리 〈해적〉,〈돈키호테〉 재안무','세종대학교 공연예술대학원 졸업','한국예술종합학교 무용원 졸업']},
+    {name:'정은영', role:'국립발레단 수석무용수', bio:['세종대학교 일반대학원 석사','한국예술종합학교 무용원 졸업','예원학교 졸업']},
+  ],
+  '발레 클라스 · 레파토리': [
+    {name:'Nadezhda Tsay', role:'RUSSIAN BALLET LLC · General Director / Choreographer / Teacher', bio:['무용실1 그룹(초등부) 담당 · 배정 예시']},
+    {name:'이은원', role:'워싱턴발레단', bio:['무용실2 그룹(중등부·홈스쿨링) 담당 · 배정 예시']},
+    {name:'이수빈', role:'헝가리 국립발레단 퍼스트 솔리스트', bio:['무용실1 그룹 레파토리 담당 · 배정 예시']},
+    {name:'채지영', role:'보스턴 발레단 수석 무용수', bio:['무용실2 그룹 레파토리 담당 · 배정 예시']},
+  ],
+  '특강': [
+    {name:'정옥희', role:'이화여자대학교 무용학연구소 학술연구교수', bio:['발레 클라스의 역사 특강 (7/18)']},
+    {name:'이대훈', role:'드림s&s 대표', bio:['피지컬 트레이닝 특강 (7/18)']},
+  ],
+  '피아니스트': [
+    {name:'원경아', role:'한국예술종합학교 실기과 발레전공 반주 강사', bio:['무용실1 반주 · 배정 예시']},
+    {name:'김나연', role:'한국예술영재교육원 광주캠퍼스 반주 강사', bio:['무용실2 반주 · 배정 예시']},
+  ],
+};
+
+// consolidated sessions for dashboard logic (rooms + people)
+const SCHEDULE = [
+  { date:'2026-07-17', label:'Day 1 · 7.17 (금)', sessions:[
+    {start:'09:00',end:'10:00',title:'접수 및 등록',rooms:['F1-LOBBY'],note:'등록담당 배치'},
+    {start:'10:00',end:'12:00',title:'오프닝 세리머니',rooms:['F1-HALL'],note:'사회자: 류재광 PD (요청완료)'},
+    {start:'12:00',end:'13:00',title:'점심',rooms:['F2-ENS'],note:''},
+    {start:'13:00',end:'16:00',title:'발레 클라스',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
+    {start:'16:00',end:'19:00',title:'발레 레파토리',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
+  ]},
+  { date:'2026-07-18', label:'Day 2 · 7.18 (토)', sessions:[
+    {start:'09:00',end:'10:00',title:'개별 연습',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
+    {start:'10:00',end:'12:00',title:'발레 클라스',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
+    {start:'12:00',end:'13:00',title:'점심',rooms:['F2-ENS'],note:''},
+    {start:'13:00',end:'16:00',title:'발레 레파토리',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
+    {start:'16:00',end:'17:00',title:'발레 클라스의 역사 (특강)',rooms:['F2-ENS'],note:'정옥희 교수'},
+    {start:'17:00',end:'19:00',title:'피지컬 트레이닝',rooms:['F4-DANCE1','F4-DANCE2'],note:'이대훈 대표'},
+  ]},
+  { date:'2026-07-19', label:'Day 3 · 7.19 (일)', sessions:[
+    {start:'09:00',end:'10:00',title:'개별 연습',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
+    {start:'10:00',end:'12:00',title:'발레 클라스',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
+    {start:'12:00',end:'13:00',title:'점심',rooms:['F2-ENS'],note:''},
+    {start:'13:00',end:'16:00',title:'발레 레파토리',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
+    {start:'16:00',end:'18:00',title:'클로징 세리머니',rooms:['F1-HALL'],note:''},
+  ]},
+];
+
+// exact hourly grid from the leaflet, for the "전체 일정" faithful table
+const GRID_HOURS = ['09:00~10:00','10:00~11:00','11:00~12:00','12:00~13:00','13:00~14:00','14:00~15:00','15:00~16:00','16:00~17:00','17:00~18:00','18:00~19:00'];
+const GRID = {
+  'Day 1 · 7.17 (금)': ['접수 및 등록','오프닝 세리머니','오프닝 세리머니','점심','발레 클라스','발레 클라스','발레 클라스','발레 레파토리','발레 레파토리','발레 레파토리'],
+  'Day 2 · 7.18 (토)': ['개별 연습','발레 클라스','발레 클라스','점심','발레 레파토리','발레 레파토리','발레 레파토리','발레 클라스의 역사','피지컬 트레이닝','피지컬 트레이닝'],
+  'Day 3 · 7.19 (일)': ['개별 연습','발레 클라스','발레 클라스','점심','발레 레파토리','발레 레파토리','발레 레파토리','클로징 세리머니','클로징 세리머니',''],
+};
+
+// 총괄 체크리스트 (2026.07.14)
+const CHECKLIST = [
+  {cat:'숙박 및 의전', items:[
+    {id:'c1',text:'홀리데이인 호텔 예약',note:'예약 완료, 본인 성함으로 지정된 날짜에 체크인/아웃'},
+    {id:'c2',text:'운영 스텝 숙박',note:'행사장과 가까운 곳으로 예약'},
+    {id:'c3',text:'생활 멘토 숙박',note:'모두 광주 거주로 숙박 불필요'},
+  ]},
+  {cat:'수송 및 이동', items:[
+    {id:'c4',text:'연사 수송',note:'등교 08:40 홀리데이인 출발 / 하교 19:00 교육원 출발'},
+    {id:'c5',text:'연구원 수송',note:'등교 08:00 / 하교 19:30'},
+    {id:'c6',text:'스텝 이동',note:'대중교통 및 도보, 현장 차량 상황에 따라 조정'},
+    {id:'c7',text:'주차권',note:'16일 현지 구매 예정 (2/4/8시간권 혼합 사용)'},
+  ]},
+  {cat:'운영인력', items:[
+    {id:'c8',text:'운영인력 섭외',note:'15일까지 섭외 완료 목표'},
+    {id:'c9',text:'생활멘토 6명',note:'섭외 완료, 16일 16:00~17:00 사전교육 · 조편성 예정'},
+    {id:'c10',text:'구급인력',note:'구급차 10:00~19:00 건물 앞 주차장 대기'},
+    {id:'c11',text:'리에종',note:'원해림 확정, 15일 08:25 도착 예정'},
+  ]},
+  {cat:'의전', items:[
+    {id:'c12',text:'해외 연수(나디아 교수) 수송',note:'15일 08:00 공항 제1터미널 승합차 대기'},
+  ]},
+  {cat:'제작물', items:[
+    {id:'c13',text:'포토월 / 외부현수막 / 포스터 / 현수막 / 리플렛 / X배너',note:'컨펌 완료, 제작 중 → 16일 현장 세팅'},
+    {id:'c14',text:'명찰 (학생·스텝)',note:'17일 새벽 현장 세팅'},
+    {id:'c15',text:'기념품 (텀블러·보조배터리·우산)',note:'텀블러·보조배터리 제작 완료, 우산 배송중'},
+  ]},
+  {cat:'F&B', items:[
+    {id:'c16',text:'도시락',note:'점심 한식 확정 · 저녁 학생+생활멘토+교강사 샌드위치'},
+    {id:'c17',text:'간식/음료',note:'구매 완료, 교강사 대기실 16일 저녁 세팅 / 합주실 17일 세팅'},
+  ]},
+  {cat:'시스템', items:[
+    {id:'c18',text:'영상시스템',note:'컨트롤 준비 완료, 오프닝 영상 수령 후 16일 테스트'},
+    {id:'c19',text:'음향시스템',note:'BG·전반 음향 컨트롤 및 감독 섭외 완료, 무용실1,2 USB 시스템 점검'},
+    {id:'c20',text:'조명시스템 / 연출',note:'섭외 완료, 16일 현장 테스트 및 리허설'},
+    {id:'c21',text:'WIFI',note:'유선 개통 확인, WIFI 렌탈·설치 기사 섭외 완료'},
+  ]},
+  {cat:'렌탈·운영물품', items:[
+    {id:'c22',text:'물품 렌탈 (테이블·의자·프린터 등)',note:'리스트 확정, 16일 세팅'},
+    {id:'c23',text:'운영물품 (테이프·가위·네임펜 등)',note:'현장 물품 준비'},
+    {id:'c24',text:'분실물 관리',note:'운영사무국 접수·보관'},
+  ]},
+  {cat:'공간', items:[
+    {id:'c25',text:'합주실 운영사무국 세팅',note:'24~32석'},
+    {id:'c26',text:'합주실 휴식·성장노트 공간',note:'31석 T자 형태 세팅'},
+    {id:'c27',text:'교수 휴게실',note:'다과·음료 준비 완료, 16일 저녁 세팅'},
+    {id:'c28',text:'강당 WIFI (예비 에그)',note:'16일 세팅 예정'},
+  ]},
+  {cat:'운영', items:[
+    {id:'c29',text:'환경 미화',note:'청소도구 준비, 수업 중 수시 정리'},
+    {id:'c30',text:'보험',note:'부상시 1인당 최대 500만원(총 2,000만원), 15일 이전 가입'},
+    {id:'c31',text:'물품 구매 대응',note:'주변 상가 사전 조사'},
+  ]},
+  {cat:'교육자료', items:[
+    {id:'c32',text:'이론교육 자료 (Level 1,2)',note:'수령 후 클리어파일·클립보드·볼펜과 함께 준비'},
+  ]},
+];
+
+/* =====================================================================
+   STATE
+===================================================================== */
+let state = {
+  mode: 'live',           // 'live' | 'preview'
+  selectedDayIdx: 0,      // for schedule tab / manual override day
+  previewMinutes: 600,    // minutes from 00:00, for preview slider
+  checklistState: {},
+  contacts: {},
+};
+
+/* =====================================================================
+   STORAGE (shared across all staff)
+===================================================================== */
+async function loadShared(key, fallback){
+  try{
+    const r = await window.storage.get(key, true);
+    return r ? JSON.parse(r.value) : fallback;
+  }catch(e){ return fallback; }
+}
+async function saveShared(key, value){
+  try{ await window.storage.set(key, JSON.stringify(value), true); }
+  catch(e){ console.error('storage save failed', e); }
+}
+
+/* =====================================================================
+   TIME HELPERS
+===================================================================== */
+function pad(n){ return n.toString().padStart(2,'0'); }
+function minsToHHMM(m){ return pad(Math.floor(m/60)) + ':' + pad(m%60); }
+function hhmmToMins(s){ const [h,m] = s.split(':').map(Number); return h*60+m; }
+
+function getEffectiveDateTime(){
+  if(state.mode === 'live'){
+    const now = new Date();
+    return { dateStr: now.toISOString().slice(0,10), minutes: now.getHours()*60+now.getMinutes(), real:true };
+  } else {
+    return { dateStr: SCHEDULE[state.selectedDayIdx].date, minutes: state.previewMinutes, real:false };
+  }
+}
+
+function findDayIndexByDate(dateStr){
+  return SCHEDULE.findIndex(d => d.date === dateStr);
+}
+
+function findCurrentSession(dayIdx, minutes){
+  if(dayIdx < 0) return null;
+  const day = SCHEDULE[dayIdx];
+  for(const s of day.sessions){
+    if(minutes >= hhmmToMins(s.start) && minutes < hhmmToMins(s.end)) return s;
+  }
+  return null;
+}
+function findNextSession(dayIdx, minutes){
+  if(dayIdx < 0){
+    // before day1 or after all days -> just return first session of day 0 as reference
+    return { session: SCHEDULE[0].sessions[0], day: SCHEDULE[0] };
+  }
+  const day = SCHEDULE[dayIdx];
+  for(const s of day.sessions){
+    if(hhmmToMins(s.start) > minutes) return { session:s, day };
+  }
+  // no more sessions today -> next day's first
+  if(dayIdx+1 < SCHEDULE.length){
+    return { session: SCHEDULE[dayIdx+1].sessions[0], day: SCHEDULE[dayIdx+1] };
+  }
+  return null;
+}
+
+/* =====================================================================
+   RENDER: TOP BAR / CLOCK / NOW CARD
+===================================================================== */
+function renderDayTabs(){
+  const wrap = document.getElementById('dayTabs');
+  wrap.innerHTML = '';
+  SCHEDULE.forEach((d,i)=>{
+    const btn = document.createElement('button');
+    btn.className = 'day-tab' + (i===state.selectedDayIdx?' active':'');
+    btn.textContent = d.label.split('·')[1].trim();
+    btn.onclick = ()=>{ state.selectedDayIdx = i; if(state.mode==='preview'){ render(); } else { render(); } };
+    wrap.appendChild(btn);
+  });
+}
+
+function tick(){
+  const eff = getEffectiveDateTime();
+  document.getElementById('clockDisplay').textContent =
+    (state.mode==='live' ? '' : (SCHEDULE.find(d=>d.date===eff.dateStr)||{}).label?.split('·')[1]?.trim()+' · ' )
+    + minsToHHMM(eff.minutes);
+  renderNowCard();
+  renderBuilding();
+}
+
+function renderNowCard(){
+  const eff = getEffectiveDateTime();
+  const dayIdx = findDayIndexByDate(eff.dateStr);
+  const cur = findCurrentSession(dayIdx, eff.minutes);
+  const nowCard = document.getElementById('nowCard');
+  const nextCard = document.getElementById('nextCard');
+
+  if(cur){
+    const startM = hhmmToMins(cur.start), endM = hhmmToMins(cur.end);
+    const pct = Math.min(100, Math.max(0, Math.round((eff.minutes-startM)/(endM-startM)*100)));
+    const roomNames = cur.rooms.map(r=>ROOMS[r].name).join(' · ');
+    nowCard.innerHTML = `
+      <div class="eyebrow"><span class="live-dot"></span>지금 진행 중</div>
+      <h2>${cur.title}</h2>
+      <div class="meta">${cur.start} – ${cur.end} · <b>${roomNames}</b>${cur.note? '<br>'+cur.note:''}</div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div>
+      <div class="progress-label"><span>${pct}% 경과</span><span>${eff.minutes>=0? Math.max(0,endM-eff.minutes):0}분 남음</span></div>
+    `;
+  } else {
+    nowCard.innerHTML = `
+      <div class="eyebrow"><span class="live-dot" style="background:var(--upcoming);"></span>진행 중인 세션 없음</div>
+      <div class="empty-note">현재 시각 기준 진행 중인 세션이 없습니다. 개별 연습·이동 시간이거나 워크숍 시간 외입니다.</div>
+    `;
+  }
+
+  const nxt = findNextSession(dayIdx, eff.minutes);
+  if(nxt && nxt.session){
+    const roomNames = nxt.session.rooms.map(r=>ROOMS[r].name).join(' · ');
+    nextCard.innerHTML = `
+      <div class="eyebrow">다음 세션</div>
+      <div class="name">${nxt.session.title}</div>
+      <div class="time">${nxt.session.start} 시작 · ${roomNames}</div>
+    `;
+  } else {
+    nextCard.innerHTML = `<div class="eyebrow">다음 세션</div><div class="time">예정된 세션 없음 (일정 종료)</div>`;
+  }
+}
+
+/* =====================================================================
+   RENDER: BUILDING / ROOMS
+===================================================================== */
+function roomStatusFor(roomKey, dayIdx, minutes){
+  if(dayIdx < 0) return {status:'done', session:null};
+  const day = SCHEDULE[dayIdx];
+  for(const s of day.sessions){
+    if(s.rooms.includes(roomKey)){
+      const st = hhmmToMins(s.start), en = hhmmToMins(s.end);
+      if(minutes >= st && minutes < en) return {status:'live', session:s};
+      if(minutes < st) return {status:'upcoming', session:s};
+    }
+  }
+  return {status:'done', session:null};
+}
+
+function renderBuilding(){
+  const eff = getEffectiveDateTime();
+  const dayIdx = findDayIndexByDate(eff.dateStr);
+  const wrap = document.getElementById('buildingWrap');
+  wrap.innerHTML = '';
+
+  FLOOR_ORDER.forEach(floor=>{
+    const roomKeys = Object.keys(ROOMS).filter(k=>ROOMS[k].floor===floor);
+    const floorDiv = document.createElement('div');
+    floorDiv.className = 'floor';
+    let rowsHtml = '';
+    roomKeys.forEach(rk=>{
+      const room = ROOMS[rk];
+      const st = roomStatusFor(rk, dayIdx, eff.minutes);
+      const statusLabel = st.status==='live' ? '진행중' : (st.status==='upcoming' ? '예정' : '비어있음');
+      const cardClass = st.status==='live' ? 'live' : (st.status==='upcoming'?'upcoming':'');
+      rowsHtml += `
+        <div class="room-card ${cardClass}" data-room="${rk}">
+          <div class="r-name">${room.name}</div>
+          <div class="r-session">${st.session ? st.session.title : '&nbsp;'}</div>
+          <span class="status-pill ${st.status}"><span class="dot"></span>${statusLabel}</span>
+          ${st.session ? `<div class="r-sub">${st.session.start}–${st.session.end}</div>` : ''}
+        </div>`;
+    });
+    floorDiv.innerHTML = `
+      <div class="floor-head"><span class="floor-badge">${floor}</span><span class="floor-name">${roomKeys.map(k=>ROOMS[k].name).join(' · ')}</span></div>
+      <div class="rooms-row">${rowsHtml}</div>
+    `;
+    wrap.appendChild(floorDiv);
+  });
+
+  wrap.querySelectorAll('.room-card').forEach(card=>{
+    card.onclick = ()=> openRoomModal(card.getAttribute('data-room'));
+  });
+}
+
+function openRoomModal(roomKey){
+  const eff = getEffectiveDateTime();
+  const dayIdx = findDayIndexByDate(eff.dateStr);
+  const room = ROOMS[roomKey];
+  const st = roomStatusFor(roomKey, dayIdx, eff.minutes);
+
+  document.getElementById('modalTitle').textContent = `${room.floor} · ${room.name}`;
+  document.getElementById('modalSub').textContent = st.session
+    ? `${st.status==='live'?'현재 진행 중':'다음 세션'} · ${st.session.title} (${st.session.start}–${st.session.end})`
+    : '현재 배정된 세션 없음';
+
+  let peopleHtml = '';
+  if(roomKey==='F4-DANCE1' || roomKey==='F4-DANCE2'){
+    const groupName = roomKey==='F4-DANCE1' ? '무용실1' : '무용실2';
+    const people = PARTICIPANTS.filter(p=>p.group===groupName);
+    peopleHtml = `
+      <div class="modal-section">
+        <h4>배정 학생 (${people.length}명)</h4>
+        <div class="people-grid">
+          ${people.map(p=>`<div class="person-tag">${p.name}<span class="school">${p.school}</span></div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  let instructorHtml = '';
+  if(st.session){
+    let names = [];
+    if(st.session.title.includes('클라스') && !st.session.title.includes('역사')){
+      names = roomKey==='F4-DANCE1' ? ['Nadezhda Tsay (담당)','원경아 (반주)'] : roomKey==='F4-DANCE2' ? ['이은원 (담당)','김나연 (반주)'] : [];
+    } else if(st.session.title.includes('레파토리')){
+      names = roomKey==='F4-DANCE1' ? ['이수빈 (담당)','원경아 (반주)'] : roomKey==='F4-DANCE2' ? ['채지영 (담당)','김나연 (반주)'] : [];
+    } else if(st.session.title.includes('역사')){
+      names = ['정옥희 교수 (특강)'];
+    } else if(st.session.title.includes('피지컬')){
+      names = ['이대훈 대표 (특강)'];
+    } else if(st.session.title.includes('세리머니')){
+      names = ['류재광 PD (사회)'];
+    }
+    if(names.length){
+      instructorHtml = `
+        <div class="modal-section">
+          <h4>담당 강사 · 스태프</h4>
+          <div class="chip-row">${names.map(n=>`<span class="chip">${n}</span>`).join('')}</div>
+          ${(roomKey==='F4-DANCE1'||roomKey==='F4-DANCE2') ? '<div class="cl-note" style="font-size:11px;color:#9a9a9a;margin-top:6px;">※ 강사-호실 배정은 예시 기본값이며 현장 상황에 맞게 조정하세요.</div>' : ''}
+        </div>`;
+    }
+  }
+
+  const facilityHtml = `
+    <div class="modal-section">
+      <h4>시설 점검 항목</h4>
+      <ul class="facility-list">${room.facilities.map(f=>`<li>${f}</li>`).join('')}</ul>
+    </div>`;
+
+  document.getElementById('modalBody').innerHTML = instructorHtml + peopleHtml + facilityHtml;
+  document.getElementById('overlay').classList.add('show');
+}
+document.getElementById('modalClose').onclick = ()=> document.getElementById('overlay').classList.remove('show');
+document.getElementById('overlay').onclick = (e)=>{ if(e.target.id==='overlay') e.currentTarget.classList.remove('show'); };
+
+/* =====================================================================
+   RENDER: SCHEDULE VIEW
+===================================================================== */
+function renderScheduleView(){
+  const wrap = document.getElementById('scheduleWrap');
+  wrap.innerHTML = '';
+  Object.keys(GRID).forEach(label=>{
+    const div = document.createElement('div');
+    div.className = 'sched-day';
+    let rows = GRID_HOURS.map((h,i)=>`<tr><td class="t-time">${h}</td><td>${GRID[label][i] || ''}</td></tr>`).join('');
+    div.innerHTML = `<h3>${label}</h3>
+      <table class="grid-table"><thead><tr><th style="width:120px;">시간</th><th>프로그램</th></tr></thead>
+      <tbody>${rows}</tbody></table>`;
+    wrap.appendChild(div);
+  });
+}
+
+/* =====================================================================
+   RENDER: PARTICIPANTS VIEW
+===================================================================== */
+let pFilter = 'all';
+function renderParticipants(){
+  const search = document.getElementById('pSearch').value.trim().toLowerCase();
+  const grid = document.getElementById('pGrid');
+  const filtered = PARTICIPANTS.filter(p=>{
+    const matchGroup = pFilter==='all' || p.group===pFilter;
+    const matchSearch = !search || p.name.toLowerCase().includes(search) || p.school.toLowerCase().includes(search);
+    return matchGroup && matchSearch;
+  });
+  document.getElementById('pCount').textContent = `(${filtered.length}/${PARTICIPANTS.length}명)`;
+  grid.innerHTML = filtered.map(p=>`
+    <div class="p-card">
+      <div class="p-name">${p.name}</div>
+      <div class="p-school">${p.school}</div>
+      <div class="p-group"><span class="chip">${p.group}</span></div>
+    </div>`).join('') || '<p style="color:var(--ink-soft);">검색 결과가 없습니다.</p>';
+}
+
+/* =====================================================================
+   RENDER: FACULTY VIEW
+===================================================================== */
+function renderFaculty(){
+  const wrap = document.getElementById('facultyWrap');
+  wrap.innerHTML = Object.keys(FACULTY).map(section=>`
+    <div class="fac-section">
+      <h3>${section}</h3>
+      <div class="fac-grid">
+        ${FACULTY[section].map(f=>`
+          <div class="fac-card">
+            <div class="f-name">${f.name}</div>
+            <div class="f-role">${f.role}</div>
+            <ul>${f.bio.map(b=>`<li>${b}</li>`).join('')}</ul>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+/* =====================================================================
+   RENDER: SAFETY VIEW (editable contacts)
+===================================================================== */
+const CONTACT_ROLES = [
+  {key:'safety_lead', role:'안전총괄책임자'},
+  {key:'ops_office', role:'운영사무국'},
+  {key:'ambulance', role:'구급차 대기 담당'},
+  {key:'liaison', role:'리에종 (원해림)'},
+  {key:'life_mentor_lead', role:'생활멘토 조장'},
+];
+function renderContacts(){
+  const wrap = document.getElementById('contactList');
+  wrap.innerHTML = CONTACT_ROLES.map(r=>`
+    <div class="contact-row">
+      <div><div class="c-role">${r.role}</div></div>
+      <input type="text" placeholder="연락처 입력" value="${state.contacts[r.key]||''}" data-key="${r.key}">
+    </div>`).join('');
+  wrap.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('change', async (e)=>{
+      state.contacts[e.target.getAttribute('data-key')] = e.target.value;
+      await saveShared('ops-contacts', state.contacts);
+    });
+  });
+}
+
+/* =====================================================================
+   RENDER: CHECKLIST VIEW
+===================================================================== */
+function renderChecklist(){
+  const wrap = document.getElementById('checklistWrap');
+  wrap.innerHTML = CHECKLIST.map(group=>`
+    <div class="cl-group">
+      <div class="cl-group-title">${group.cat}</div>
+      ${group.items.map(item=>`
+        <div class="cl-item ${state.checklistState[item.id] ? 'checked':''}" data-id="${item.id}">
+          <input type="checkbox" ${state.checklistState[item.id]?'checked':''}>
+          <div>
+            <div class="cl-text">${item.text}</div>
+            <div class="cl-note">${item.note}</div>
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+
+  wrap.querySelectorAll('.cl-item').forEach(el=>{
+    const id = el.getAttribute('data-id');
+    const cb = el.querySelector('input');
+    cb.addEventListener('change', async ()=>{
+      state.checklistState[id] = cb.checked;
+      el.classList.toggle('checked', cb.checked);
+      await saveShared('ops-checklist', state.checklistState);
+      updateChecklistSummary();
+    });
+  });
+  updateChecklistSummary();
+}
+function updateChecklistSummary(){
+  const total = CHECKLIST.reduce((n,g)=>n+g.items.length,0);
+  const done = Object.values(state.checklistState).filter(Boolean).length;
+  document.getElementById('clCountLabel').textContent = `${done} / ${total}`;
+  document.getElementById('clRing').style.width = (total? Math.round(done/total*100):0) + '%';
+}
+document.getElementById('clReset').addEventListener('click', async ()=>{
+  if(!confirm('모든 체크리스트 항목을 초기화할까요?')) return;
+  state.checklistState = {};
+  await saveShared('ops-checklist', state.checklistState);
+  renderChecklist();
+});
+
+/* =====================================================================
+   RENDER: VENUE VIEW
+===================================================================== */
+function renderVenue(){
+  const wrap = document.getElementById('venueWrap');
+  wrap.innerHTML = FLOOR_ORDER.map(floor=>{
+    const rooms = Object.values(ROOMS).filter(r=>r.floor===floor);
+    return `<div class="venue-card">
+      <h4>${floor}</h4>
+      <ul>${rooms.map(r=>`<li><b>${r.name}</b> — ${r.facilities.join(', ')}</li>`).join('')}</ul>
+    </div>`;
+  }).join('');
+}
+
+/* =====================================================================
+   NAV / VIEW SWITCH
+===================================================================== */
+document.getElementById('navList').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  document.querySelectorAll('#navList button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const view = btn.getAttribute('data-view');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  if(view==='schedule') renderScheduleView();
+  if(view==='participants') renderParticipants();
+  if(view==='faculty') renderFaculty();
+  if(view==='safety') renderContacts();
+  if(view==='checklist') renderChecklist();
+  if(view==='venue') renderVenue();
+});
+
+document.getElementById('pSearch').addEventListener('input', renderParticipants);
+document.querySelectorAll('.filter-btn[data-group]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.filter-btn[data-group]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    pFilter = btn.getAttribute('data-group');
+    renderParticipants();
+  });
+});
+
+/* =====================================================================
+   TIME MODE CONTROLS
+===================================================================== */
+document.getElementById('modeLive').addEventListener('click', ()=>{
+  state.mode = 'live';
+  document.getElementById('modeLive').classList.add('on');
+  document.getElementById('modePreview').classList.remove('on');
+  document.getElementById('timeSlider').style.display = 'none';
+  const now = new Date();
+  const idx = findDayIndexByDate(now.toISOString().slice(0,10));
+  if(idx>=0) state.selectedDayIdx = idx;
+  renderDayTabs();
+  render();
+});
+document.getElementById('modePreview').addEventListener('click', ()=>{
+  state.mode = 'preview';
+  document.getElementById('modePreview').classList.add('on');
+  document.getElementById('modeLive').classList.remove('on');
+  document.getElementById('timeSlider').style.display = 'inline-block';
+  render();
+});
+document.getElementById('timeSlider').addEventListener('input', (e)=>{
+  state.previewMinutes = Number(e.target.value);
+  render();
+});
+
+/* =====================================================================
+   MASTER RENDER + INIT
+===================================================================== */
+function render(){
+  renderDayTabs();
+  tick();
+}
+
+async function init(){
+  state.checklistState = await loadShared('ops-checklist', {});
+  state.contacts = await loadShared('ops-contacts', {});
+
+  // auto-detect today
+  const now = new Date();
+  const idx = findDayIndexByDate(now.toISOString().slice(0,10));
+  state.selectedDayIdx = idx>=0 ? idx : 0;
+
+  render();
+  setInterval(()=>{ if(state.mode==='live') tick(); }, 15000);
+}
+init();
+</script>
+</body>
+</html>
