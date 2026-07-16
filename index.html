@@ -174,6 +174,8 @@
     display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;
   }
   .overlay.show{display:flex;}
+  .overlay-nested{z-index:120;}
+  .modal-small{max-width:380px;}
   .modal{
     background:#fff;border-radius:16px;max-width:560px;width:100%;padding:0;overflow:hidden;
     box-shadow:0 30px 60px rgba(0,0,0,.3);
@@ -230,6 +232,21 @@
   .sched-row .s-body{flex:1;}
   .sched-row .s-note{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
   .assume-note{font-size:11px;color:#9a7b2f;background:#fbf3e0;border:1px solid #f0dcae;border-radius:8px;padding:8px 10px;margin-bottom:12px;}
+
+  /* Schedule: TV-guide style horizontal layout */
+  .sched-day-tabs{display:none;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;}
+  .sched-tab{padding:8px 16px;border-radius:9px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:700;color:var(--ink-soft);white-space:nowrap;flex:none;}
+  .sched-tab.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .tv-guide{display:flex;gap:14px;align-items:flex-start;}
+  .tv-day-col{flex:1;min-width:0;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .tv-day-head{background:var(--navy);color:#fff;font-size:13.5px;font-weight:800;padding:10px 14px;}
+  .tv-day-body{padding:2px 12px;}
+  @media (max-width:880px){
+    .sched-day-tabs{display:flex;}
+    .tv-guide{display:block;}
+    .tv-day-col{display:none;}
+    .tv-day-col.is-active{display:block;}
+  }
 
   /* Faculty */
   .fac-section{margin-bottom:24px;}
@@ -464,6 +481,18 @@
   </div>
 </div>
 
+<!-- STUDENT/MENTOR QUICK-INFO MODAL (independent, stacks above the room modal) -->
+<div class="overlay overlay-nested" id="overlay2">
+  <div class="modal modal-small">
+    <div class="modal-head">
+      <button class="modal-close" id="modalClose2">✕</button>
+      <h3 id="modalTitle2">학생</h3>
+      <div class="m-sub" id="modalSub2"></div>
+    </div>
+    <div class="modal-body" id="modalBody2"></div>
+  </div>
+</div>
+
 <script>
 /* =====================================================================
    DATA
@@ -669,7 +698,8 @@ const CHECKLIST = [
 ===================================================================== */
 let state = {
   mode: 'live',           // 'live' | 'preview'
-  selectedDayIdx: 0,      // for schedule tab / manual override day
+  selectedDayIdx: 0,      // top-bar day (only used in preview mode)
+  scheduleDayIdx: 0,      // which day column is active in the 일정 tab on narrow screens
   previewMinutes: 600,    // minutes from 00:00, for preview slider
   checklistState: {},
   contacts: {},
@@ -740,6 +770,8 @@ function trackBadge(track){
 ===================================================================== */
 function renderDayTabs(){
   const wrap = document.getElementById('dayTabs');
+  wrap.style.display = state.mode === 'preview' ? 'flex' : 'none';
+  if(state.mode !== 'preview'){ return; }
   wrap.innerHTML = '';
   SCHEDULE.forEach((d,i)=>{
     const btn = document.createElement('button');
@@ -937,9 +969,9 @@ function openStudentModal(name){
   const p = PARTICIPANTS.find(x=>x.name===name);
   const m = mentorOf(name);
   if(!p) return;
-  document.getElementById('modalTitle').textContent = p.name;
-  document.getElementById('modalSub').textContent = `${p.school} · ${p.birth} · ${p.cls}반 (${ROOMS[p.room].name})`;
-  document.getElementById('modalBody').innerHTML = `
+  document.getElementById('modalTitle2').textContent = p.name;
+  document.getElementById('modalSub2').textContent = `${p.school} · ${p.birth} · ${p.cls}반 (${ROOMS[p.room].name})`;
+  document.getElementById('modalBody2').innerHTML = `
     <div class="modal-section">
       <h4>담당 생활멘토</h4>
       ${m ? `
@@ -947,7 +979,7 @@ function openStudentModal(name){
         <div class="c-name" style="font-family:var(--mono);margin-top:6px;">${m.phone}</div>
       ` : '<div class="empty-note" style="color:var(--ink-soft);">배정된 생활멘토 정보를 찾을 수 없습니다.</div>'}
     </div>`;
-  document.getElementById('overlay').classList.add('show');
+  document.getElementById('overlay2').classList.add('show');
 }
 
 function openMentorModal(id){
@@ -967,19 +999,24 @@ function openMentorModal(id){
 }
 document.getElementById('modalClose').onclick = ()=> document.getElementById('overlay').classList.remove('show');
 document.getElementById('overlay').onclick = (e)=>{ if(e.target.id==='overlay') e.currentTarget.classList.remove('show'); };
+document.getElementById('modalClose2').onclick = ()=> document.getElementById('overlay2').classList.remove('show');
+document.getElementById('overlay2').onclick = (e)=>{ if(e.target.id==='overlay2') e.currentTarget.classList.remove('show'); };
 
 /* =====================================================================
    RENDER: SCHEDULE VIEW
 ===================================================================== */
 function renderScheduleView(){
   const wrap = document.getElementById('scheduleWrap');
-  wrap.innerHTML = `<div class="assume-note">⚠ 노란 배경 항목은 자료상 표기가 불명확해 합리적으로 추정한 부분입니다. 확정되면 알려주시면 바로 반영할게요.</div>`;
-  SCHEDULE.forEach(day=>{
-    const div = document.createElement('div');
-    div.className = 'sched-day';
+  const activeDay = state.scheduleDayIdx ?? 0;
+
+  const tabsHtml = `<div class="sched-day-tabs">${SCHEDULE.map((d,i)=>
+    `<button class="sched-tab ${i===activeDay?'active':''}" data-day="${i}">${d.label.split('·')[1].trim()}</button>`
+  ).join('')}</div>`;
+
+  const colsHtml = SCHEDULE.map((day,i)=>{
     const rows = day.sessions.map(s=>{
       const roomName = s.room ? ROOMS[s.room].name : '';
-      const isAssumed = s.note && (s.note.includes('추정'));
+      const isAssumed = s.note && s.note.includes('추정');
       return `<div class="sched-row" style="${isAssumed?'background:#fbf3e0;border-radius:8px;':''}">
         <div class="s-time">${s.start}–${s.end}</div>
         <div class="s-body">
@@ -988,8 +1025,22 @@ function renderScheduleView(){
         </div>
       </div>`;
     }).join('');
-    div.innerHTML = `<h3>${day.label}</h3><div style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 14px;">${rows}</div>`;
-    wrap.appendChild(div);
+    return `<div class="tv-day-col ${i===activeDay?'is-active':''}" data-daycol="${i}">
+      <div class="tv-day-head">${day.label}</div>
+      <div class="tv-day-body">${rows}</div>
+    </div>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div class="assume-note">⚠ 노란 배경 항목은 자료상 표기가 불명확해 합리적으로 추정한 부분입니다. 확정되면 알려주시면 바로 반영할게요.</div>
+    ${tabsHtml}
+    <div class="tv-guide">${colsHtml}</div>`;
+
+  wrap.querySelectorAll('.sched-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.scheduleDayIdx = Number(btn.getAttribute('data-day'));
+      renderScheduleView();
+    });
   });
 }
 /* =====================================================================
