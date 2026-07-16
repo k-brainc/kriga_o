@@ -168,26 +168,6 @@
   .status-pill .dot{width:6px;height:6px;border-radius:50%;background:#fff;}
   .r-sub{font-size:11px;color:#8a8f98;margin-top:6px;}
 
-  /* Floor plan (SVG schematic) */
-  .plan-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin-bottom:12px;}
-  .plan-legend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
-  .floor-plan-svg{width:100%;height:auto;display:block;}
-  .plan-room rect{stroke-width:1.5;transition:filter .15s;}
-  .plan-room{cursor:pointer;outline:none;}
-  .plan-room:hover rect{filter:brightness(0.97);}
-  .plan-room:focus rect{stroke:var(--navy);stroke-width:2.5;}
-  .plan-room-name{font-family:var(--sans);font-size:15px;font-weight:800;fill:var(--ink);}
-  .plan-room-sub{font-family:var(--sans);font-size:11.5px;fill:var(--ink-soft);}
-  .plan-room.plan-live rect{fill:var(--live-soft);stroke:var(--live);}
-  .plan-room.plan-live .sw, .sw.plan-live{background:var(--live);}
-  .plan-room.plan-upcoming rect{fill:#fff;stroke:#dcd3b5;}
-  .sw.plan-upcoming{background:#dcd3b5;}
-  .plan-room.plan-done rect{fill:#f7f4ea;stroke:var(--line);}
-  .sw.plan-done{background:#f7f4ea;border:1px solid var(--line);}
-  .plan-room.plan-amenity rect{fill:#eef3f8;stroke:#c7d5e2;}
-  .sw.plan-amenity{background:#eef3f8;border:1px solid #c7d5e2;}
-  .plan-room.plan-amenity .plan-room-name, .plan-room.plan-amenity .plan-room-sub{fill:#5b7186;}
-
   /* Modal */
   .overlay{
     position:fixed;inset:0;background:rgba(15,25,35,.5);z-index:100;
@@ -235,6 +215,21 @@
   .p-card .p-name{font-weight:800;font-size:14px;}
   .p-card .p-school{font-size:12px;color:var(--ink-soft);margin-top:2px;}
   .p-card .p-group{margin-top:8px;}
+  .p-card{cursor:pointer;transition:transform .12s;}
+  .p-card:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(20,30,40,.08);}
+  .track-badge{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:6px;margin-right:5px;}
+  .track-badge.A{background:#e2f0ff;color:#1c5faa;}
+  .track-badge.B{background:#fdeaea;color:#b0392c;}
+  .mentor-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 14px;cursor:pointer;transition:transform .12s;}
+  .mentor-card:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(20,30,40,.08);}
+  .mentor-card .m-name{font-weight:800;font-size:14.5px;}
+  .mentor-card .m-phone{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin:3px 0 8px;}
+  .sched-row{display:flex;gap:10px;align-items:flex-start;padding:9px 4px;border-top:1px solid #f2ecdc;font-size:13px;}
+  .sched-row:first-child{border-top:none;}
+  .sched-row .s-time{font-family:var(--mono);font-weight:700;color:var(--navy);width:100px;flex:none;}
+  .sched-row .s-body{flex:1;}
+  .sched-row .s-note{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .assume-note{font-size:11px;color:#9a7b2f;background:#fbf3e0;border:1px solid #f0dcae;border-radius:8px;padding:8px 10px;margin-bottom:12px;}
 
   /* Faculty */
   .fac-section{margin-bottom:24px;}
@@ -322,6 +317,7 @@
       <button data-view="schedule"><span class="ico">▤</span>전체 일정</button>
       <button data-view="participants"><span class="ico">◍</span>참가자 명단</button>
       <button data-view="faculty"><span class="ico">✦</span>교강사·자문위원</button>
+      <button data-view="mentors"><span class="ico">♥</span>생활멘토</button>
       <button data-view="safety"><span class="ico">✚</span>안전·비상연락망</button>
       <button data-view="checklist"><span class="ico">☑</span>운영 체크리스트</button>
       <button data-view="venue"><span class="ico">▦</span>공간 안내</button>
@@ -340,8 +336,8 @@
     <!-- HOME -->
     <div class="view active" id="view-home">
       <div class="view-header">
-        <h1>층별 평면도</h1>
-        <p>개략 배치도(실측 도면 아님) · 호실을 클릭하면 현재(또는 선택된 시각) 진행 세션의 학생 그룹·담당 강사·시설 체크리스트를, 화장실·휴게실은 위치 안내를 볼 수 있어요.</p>
+        <h1>층별 현황판</h1>
+        <p>호실을 클릭하면 현재(또는 선택된 시각) 진행 세션의 학생 그룹·담당 강사·시설 체크리스트를, 화장실·휴게실은 위치 안내를 볼 수 있어요.</p>
       </div>
       <div class="building" id="buildingWrap"></div>
     </div>
@@ -350,7 +346,7 @@
     <div class="view" id="view-schedule">
       <div class="view-header">
         <h1>전체 일정</h1>
-        <p>리플렛 시간표 기준 (사정에 의해 변동될 수 있습니다)</p>
+        <p>2026.7.15 공유 세부 프로그램(안) 기준 · A반(초등·401호) / B반(중고등·402호) · 사정에 따라 변동 가능</p>
       </div>
       <div id="scheduleWrap"></div>
     </div>
@@ -359,15 +355,24 @@
     <div class="view" id="view-participants">
       <div class="view-header">
         <h1>참가자 명단 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;" id="pCount"></span></h1>
-        <p>무용 분야 워크숍 참가자 · 학교/조 편성 검색</p>
+        <p>학생 카드를 클릭하면 담당 생활멘토와 연락처를 볼 수 있어요.</p>
       </div>
       <div class="toolbar">
         <input type="text" id="pSearch" placeholder="이름 또는 학교로 검색...">
-        <button class="filter-btn active" data-group="all">전체</button>
-        <button class="filter-btn" data-group="무용실1">무용실1 그룹</button>
-        <button class="filter-btn" data-group="무용실2">무용실2 그룹</button>
+        <button class="filter-btn active" data-group="all">전체 (31)</button>
+        <button class="filter-btn" data-group="A">A반·초등 (401호)</button>
+        <button class="filter-btn" data-group="B">B반·중고등 (402호)</button>
       </div>
       <div class="p-grid" id="pGrid"></div>
+    </div>
+
+    <!-- MENTORS -->
+    <div class="view" id="view-mentors">
+      <div class="view-header">
+        <h1>생활멘토</h1>
+        <p>멘토 카드를 클릭하면 담당 학생 명단을 볼 수 있어요.</p>
+      </div>
+      <div class="p-grid" id="mentorGrid"></div>
     </div>
 
     <!-- FACULTY -->
@@ -465,78 +470,70 @@
 ===================================================================== */
 const ROOMS = {
   'F1-LOBBY': {floor:'1F', name:'로비 · 접수데스크', type:'teaching', facilities:['안내 pop / 안내책자 / 명찰 / 웰컴키트 배치','짐 보관함 및 라벨']},
-  'F1-HALL' : {floor:'1F', name:'강당', type:'teaching', facilities:['음향·조명 시스템','WIFI(예비 에그 1개)','오프닝/클로징 세리머니 무대']},
+  'F1-HALL' : {floor:'1F', name:'강당', type:'teaching', facilities:['음향·조명 시스템','WIFI(예비 에그 1개)','오리엔테이션/특강/수료식 무대']},
   'F1-WC'   : {floor:'1F', name:'화장실', type:'amenity', icon:'🚻', facilities:['로비 · 강당 인근']},
-  'F2-ENS'  : {floor:'2F', name:'합주실 (운영사무국·식사공간)', type:'teaching', facilities:['운영사무국 좌석 24~32석','참가자 휴식·성장노트 작성 공간 31석','간식/음료 상시 비치']},
-  'F2-LOUNGE':{floor:'2F', name:'교수 휴게실', type:'amenity', icon:'☕', facilities:['커피·탄산수·음료·간식 상시 비치','교강사 대기 공간']},
+  'F2-ENS'  : {floor:'2F', name:'합주실 (식사·휴게 공간)', type:'teaching', facilities:['참가자 점심·간식 공간','성장노트 작성 공간']},
+  'F2-LOUNGE':{floor:'2F', name:'교수 휴게실', type:'amenity', icon:'☕', facilities:['커피·탄산수·음료·간식 상시 비치','교강사 평가회의 공간']},
   'F2-WC'   : {floor:'2F', name:'화장실', type:'amenity', icon:'🚻', facilities:['합주실 인근']},
-  'F4-DANCE1': {floor:'4F', name:'무용실 1', type:'teaching', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
-  'F4-DANCE2': {floor:'4F', name:'무용실 2', type:'teaching', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
-  'F4-LOCKER': {floor:'4F', name:'탈의실', type:'teaching', facilities:['물품보관대 (이름 라벨)']},
-  'F4-WC'   : {floor:'4F', name:'화장실', type:'amenity', icon:'🚻', facilities:['무용실 · 탈의실 인근']},
+  'F4-401': {floor:'4F', name:'401호 · 무용실 1 (A반)', type:'teaching', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
+  'F4-402': {floor:'4F', name:'402호 · 무용실 2 (B반)', type:'teaching', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
+  'F4-403' : {floor:'4F', name:'403호 · 개인연습실', type:'amenity', icon:'🎹', facilities:['개별 연습 · 대기 공간']},
+  'F4-404' : {floor:'4F', name:'404호 · 조정실 / 자료보관실', type:'amenity', icon:'🗄️', facilities:['영상·음향 조정','자료 보관']},
+  'F4-406' : {floor:'4F', name:'406호 · 교무실', type:'amenity', icon:'🗂️', facilities:['운영·교강사 사무 공간']},
+  'F4-WC'   : {floor:'4F', name:'화장실', type:'amenity', icon:'🚻', facilities:['무용실 인근']},
 };
 const FLOOR_ORDER = ['1F','2F','4F'];
-
-// 개략 배치도(스케마틱): 실측 도면이 아니라 자료상 위치 관계를 바탕으로 구성한 참고용 좌표입니다.
-const FLOOR_PLANS = {
-  '1F': { viewBox:'0 0 640 240', rooms:[
-    {key:'F1-LOBBY', x:20,  y:20, w:340, h:200},
-    {key:'F1-HALL',  x:380, y:20, w:180, h:200},
-    {key:'F1-WC',    x:580, y:20, w:40,  h:90},
-  ]},
-  '2F': { viewBox:'0 0 640 240', rooms:[
-    {key:'F2-ENS',    x:20,  y:20, w:400, h:200},
-    {key:'F2-LOUNGE', x:440, y:20, w:160, h:95},
-    {key:'F2-WC',     x:440, y:125,w:160, h:95},
-  ]},
-  '4F': { viewBox:'0 0 640 240', rooms:[
-    {key:'F4-DANCE1', x:20,  y:20, w:230, h:200},
-    {key:'F4-DANCE2', x:270, y:20, w:230, h:200},
-    {key:'F4-LOCKER', x:520, y:20, w:100, h:95},
-    {key:'F4-WC',     x:520, y:125,w:100, h:95},
-  ]}
-};
 
 // 각 실별 인근 편의시설(화장실·휴게실) 안내용
 const NEARBY = {
   'F1-LOBBY':['F1-WC'], 'F1-HALL':['F1-WC'],
   'F2-ENS':['F2-WC','F2-LOUNGE'],
-  'F4-DANCE1':['F4-WC','F4-LOCKER'], 'F4-DANCE2':['F4-WC','F4-LOCKER'],
+  'F4-401':['F4-WC','F4-403'], 'F4-402':['F4-WC','F4-403'],
 };
 
-// participants: 22 elementary -> 무용실1, 9 middle/homeschool -> 무용실2
+// 2026.7.15 공유 "세부 프로그램(안)" 기준 참가자 31명 · 생활멘토 배정
+const MENTORS = [
+  {id:'m1', name:'김서연', phone:'010-7337-9364', cls:'A', students:['곽다율','김라희','서시온','송해솔','오하린','윤지우']},
+  {id:'m2', name:'문민영', phone:'010-8590-8042', cls:'A', students:['이로울','이주아','조하은','최세령','최아인','한채린']},
+  {id:'m3', name:'문수영', phone:'010-3142-8042', cls:'A', students:['김다해','김서율','김주혜','나유송','문채원']},
+  {id:'m4', name:'오예진', phone:'010-6807-3156', cls:'A', students:['박라엘','송세잎','이소민','이채윤','한예슬']},
+  {id:'m5', name:'정해진', phone:'010-6692-4783', cls:'B', students:['김민서','맹지유','송민경','한그루','김은채']},
+  {id:'m6', name:'최다연', phone:'010-3375-9488', cls:'B', students:['신아윤','권연재','이서은','안하랑']},
+];
+function mentorOf(studentName){ return MENTORS.find(m=>m.students.includes(studentName)); }
+
 const PARTICIPANTS = [
-  {name:'곽다율',school:'서울동일초',group:'무용실1'},
-  {name:'김라희',school:'다산한강초',group:'무용실1'},
-  {name:'서시온',school:'운리초',group:'무용실1'},
-  {name:'송해솔',school:'제석초',group:'무용실1'},
-  {name:'오하린',school:'태봉초',group:'무용실1'},
-  {name:'윤지우',school:'용남초',group:'무용실1'},
-  {name:'이로울',school:'포항제철초',group:'무용실1'},
-  {name:'이주아',school:'천안희망초',group:'무용실1'},
-  {name:'조하은',school:'상미초',group:'무용실1'},
-  {name:'최세령',school:'동천초',group:'무용실1'},
-  {name:'최아인',school:'서울강빛초',group:'무용실1'},
-  {name:'한채린',school:'윤슬초',group:'무용실1'},
-  {name:'김다해',school:'남양주백봉초',group:'무용실1'},
-  {name:'김서율',school:'수완초',group:'무용실1'},
-  {name:'김주혜',school:'망월초',group:'무용실1'},
-  {name:'나유송',school:'불로초',group:'무용실1'},
-  {name:'문채원',school:'가창초',group:'무용실1'},
-  {name:'박라엘',school:'영광중앙초',group:'무용실1'},
-  {name:'송세잎',school:'율포초',group:'무용실1'},
-  {name:'이소민',school:'솔빛초',group:'무용실1'},
-  {name:'이채윤',school:'두루초',group:'무용실1'},
-  {name:'한예슬',school:'용남초',group:'무용실1'},
-  {name:'맹지유',school:'와부중',group:'무용실2'},
-  {name:'송민경',school:'부곡중',group:'무용실2'},
-  {name:'한그루',school:'선화예중',group:'무용실2'},
-  {name:'김민서',school:'선화예중',group:'무용실2'},
-  {name:'김은채',school:'매성중',group:'무용실2'},
-  {name:'신아윤',school:'선화예중',group:'무용실2'},
-  {name:'권연재',school:'상일중',group:'무용실2'},
-  {name:'이서은',school:'미사강변중',group:'무용실2'},
-  {name:'안하랑',school:'홈스쿨링',group:'무용실2'},
+  {name:'곽다율',school:'서울동일초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'김라희',school:'다산한강초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'서시온',school:'운리초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'송해솔',school:'제석초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'오하린',school:'태봉초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'윤지우',school:'용남초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'이로울',school:'포항제철초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'이주아',school:'천안희망초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'조하은',school:'상미초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'최세령',school:'동천초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'최아인',school:'서울강빛초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'한채린',school:'윤슬초',birth:'2015(초5)',cls:'A',room:'F4-401'},
+  {name:'김다해',school:'남양주백봉초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'김서율',school:'수완초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'김주혜',school:'망월초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'나유송',school:'불로초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'문채원',school:'가창초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'박라엘',school:'영광중앙초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'송세잎',school:'율포초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'이소민',school:'솔빛초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'이채윤',school:'두루초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'한예슬',school:'용남초',birth:'2014(초6)',cls:'A',room:'F4-401'},
+  {name:'김민서',school:'선화예중',birth:'2013(중1)',cls:'B',room:'F4-402'},
+  {name:'맹지유',school:'와부중',birth:'2013(중1)',cls:'B',room:'F4-402'},
+  {name:'송민경',school:'부곡중',birth:'2013(중1)',cls:'B',room:'F4-402'},
+  {name:'한그루',school:'선화예중',birth:'2013(중1)',cls:'B',room:'F4-402'},
+  {name:'김은채',school:'매성중',birth:'2012(중2)',cls:'B',room:'F4-402'},
+  {name:'신아윤',school:'선화예중',birth:'2012(중2)',cls:'B',room:'F4-402'},
+  {name:'권연재',school:'상일중',birth:'2011(중3)',cls:'B',room:'F4-402'},
+  {name:'이서은',school:'미사강변중',birth:'2011(중3)',cls:'B',room:'F4-402'},
+  {name:'안하랑',school:'홈스쿨링',birth:'2010(고1)',cls:'B',room:'F4-402'},
 ];
 
 const FACULTY = {
@@ -550,55 +547,66 @@ const FACULTY = {
     {name:'송정빈', role:'국립발레단 솔리스트, 안무자', bio:['국립발레단 레파토리 〈해적〉,〈돈키호테〉 재안무','세종대학교 공연예술대학원 졸업','한국예술종합학교 무용원 졸업']},
     {name:'정은영', role:'국립발레단 수석무용수', bio:['세종대학교 일반대학원 석사','한국예술종합학교 무용원 졸업','예원학교 졸업']},
   ],
-  '발레 클라스 · 레파토리': [
-    {name:'Nadezhda Tsay', role:'RUSSIAN BALLET LLC · General Director / Choreographer / Teacher', bio:['무용실1 그룹(초등부) 담당 · 배정 예시']},
-    {name:'이은원', role:'워싱턴발레단', bio:['무용실2 그룹(중등부·홈스쿨링) 담당 · 배정 예시']},
-    {name:'이수빈', role:'헝가리 국립발레단 퍼스트 솔리스트', bio:['무용실1 그룹 레파토리 담당 · 배정 예시']},
-    {name:'채지영', role:'보스턴 발레단 수석 무용수', bio:['무용실2 그룹 레파토리 담당 · 배정 예시']},
+  '발레 클라스 · 레파토리 (A반 · 401호)': [
+    {name:'Nadezhda Tsay', role:'RUSSIAN BALLET LLC · General Director / Choreographer / Teacher', bio:['A반(초등) 발레 클라스·레파토리 전 일정 담당 (401호)']},
   ],
-  '특강': [
-    {name:'정옥희', role:'이화여자대학교 무용학연구소 학술연구교수', bio:['발레 클라스의 역사 특강 (7/18)']},
-    {name:'이대훈', role:'드림s&s 대표', bio:['피지컬 트레이닝 특강 (7/18)']},
+  '발레 클라스 · 레파토리 (B반 · 402호, 일자별 교체)': [
+    {name:'이은원', role:'워싱턴발레단', bio:['7/17(금) B반 담당 (402호)']},
+    {name:'이수빈', role:'헝가리 국립발레단 퍼스트 솔리스트', bio:['7/18(토) B반 담당 (402호)']},
+    {name:'채지영', role:'보스턴 발레단 수석 무용수', bio:['7/19(일) B반 담당 (402호)']},
   ],
-  '피아니스트': [
-    {name:'원경아', role:'한국예술종합학교 실기과 발레전공 반주 강사', bio:['무용실1 반주 · 배정 예시']},
-    {name:'김나연', role:'한국예술영재교육원 광주캠퍼스 반주 강사', bio:['무용실2 반주 · 배정 예시']},
+  '특강 (7/18)': [
+    {name:'정옥희', role:'이화여자대학교 무용학연구소 학술연구교수', bio:['발레 클라스의 역사 특강 · 강당']},
+    {name:'이대훈', role:'드림s&s 대표', bio:['피지컬 트레이닝 특강 · 401호']},
   ],
 };
 
-// consolidated sessions for dashboard logic (rooms + people)
+// 2026.7.15 공유 "세부 프로그램(안)" 기준 세부 일정
+// 각 항목은 시간대별 개별 트랙(A/B 또는 전체)을 나타내며, 같은 시간대에 room이 다르면 동시 진행입니다.
 const SCHEDULE = [
   { date:'2026-07-17', label:'Day 1 · 7.17 (금)', sessions:[
-    {start:'09:00',end:'10:00',title:'접수 및 등록',rooms:['F1-LOBBY'],note:'등록담당 배치'},
-    {start:'10:00',end:'12:00',title:'오프닝 세리머니',rooms:['F1-HALL'],note:'사회자: 류재광 PD (요청완료)'},
-    {start:'12:00',end:'13:00',title:'점심',rooms:['F2-ENS'],note:''},
-    {start:'13:00',end:'16:00',title:'발레 클라스',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
-    {start:'16:00',end:'19:00',title:'발레 레파토리',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
+    {start:'09:00',end:'10:00',title:'접수 및 등록',room:'F1-LOBBY',track:'ALL'},
+    {start:'10:00',end:'12:00',title:'오리엔테이션',room:'F1-HALL',track:'ALL',note:'11:00 시작 (자료상 표기)'},
+    {start:'12:00',end:'13:00',title:'점심',room:'F2-ENS',track:'ALL'},
+    {start:'13:00',end:'15:00',title:'발레 클라스',room:'F4-401',track:'A',instructor:'Nadezhda Tsay'},
+    {start:'13:00',end:'15:00',title:'발레 클라스',room:'F4-402',track:'B',instructor:'이은원'},
+    {start:'15:00',end:'15:30',title:'휴식',room:null,track:'ALL'},
+    {start:'15:30',end:'17:30',title:'발레 레파토리',room:'F4-401',track:'A',instructor:'Nadezhda Tsay'},
+    {start:'15:30',end:'17:30',title:'발레 레파토리',room:'F4-402',track:'B',instructor:'이은원'},
+    {start:'17:30',end:'19:00',title:'성장노트 작성',room:'F4-401',track:'A',note:'학생'},
+    {start:'17:30',end:'19:00',title:'성장노트 작성',room:'F4-402',track:'B',note:'학생'},
+    {start:'17:30',end:'19:00',title:'평가회의',room:'F2-LOUNGE',track:'ALL',note:'교강사진'},
   ]},
   { date:'2026-07-18', label:'Day 2 · 7.18 (토)', sessions:[
-    {start:'09:00',end:'10:00',title:'개별 연습',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
-    {start:'10:00',end:'12:00',title:'발레 클라스',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
-    {start:'12:00',end:'13:00',title:'점심',rooms:['F2-ENS'],note:''},
-    {start:'13:00',end:'16:00',title:'발레 레파토리',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
-    {start:'16:00',end:'17:00',title:'발레 클라스의 역사 (특강)',rooms:['F2-ENS'],note:'정옥희 교수'},
-    {start:'17:00',end:'19:00',title:'피지컬 트레이닝',rooms:['F4-DANCE1','F4-DANCE2'],note:'이대훈 대표'},
+    {start:'09:00',end:'10:00',title:'개별 연습',room:'F4-401',track:'A'},
+    {start:'09:00',end:'10:00',title:'개별 연습',room:'F4-402',track:'B'},
+    {start:'10:00',end:'12:00',title:'발레 클라스',room:'F4-401',track:'A',instructor:'Nadezhda Tsay'},
+    {start:'10:00',end:'12:00',title:'발레 클라스',room:'F4-402',track:'B',instructor:'이수빈'},
+    {start:'12:00',end:'13:00',title:'점심',room:'F2-ENS',track:'ALL'},
+    {start:'13:00',end:'15:00',title:'발레 레파토리',room:'F4-401',track:'A',instructor:'Nadezhda Tsay'},
+    {start:'13:00',end:'15:00',title:'발레 레파토리',room:'F4-402',track:'B',instructor:'이수빈'},
+    {start:'15:00',end:'15:30',title:'휴식',room:null,track:'ALL'},
+    {start:'15:30',end:'16:30',title:'발레 클라스의 역사',room:'F1-HALL',track:'A',instructor:'정옥희', note:'추정 배치(전·후반 교체) — 확정시 수정'},
+    {start:'15:30',end:'16:30',title:'피지컬 트레이닝',room:'F4-402',track:'B',instructor:'이대훈', note:'추정 배치(전·후반 교체) — 확정시 수정'},
+    {start:'16:30',end:'17:30',title:'피지컬 트레이닝',room:'F4-401',track:'A',instructor:'이대훈', note:'추정 배치(전·후반 교체) — 확정시 수정'},
+    {start:'16:30',end:'17:30',title:'발레 클라스의 역사',room:'F1-HALL',track:'B',instructor:'정옥희', note:'추정 배치(전·후반 교체) — 확정시 수정'},
+    {start:'17:30',end:'19:00',title:'성장노트 작성',room:'F4-401',track:'A',note:'학생'},
+    {start:'17:30',end:'19:00',title:'성장노트 작성',room:'F4-402',track:'B',note:'학생'},
+    {start:'17:30',end:'19:00',title:'평가회의',room:'F2-LOUNGE',track:'ALL',note:'교강사진'},
   ]},
   { date:'2026-07-19', label:'Day 3 · 7.19 (일)', sessions:[
-    {start:'09:00',end:'10:00',title:'개별 연습',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
-    {start:'10:00',end:'12:00',title:'발레 클라스',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
-    {start:'12:00',end:'13:00',title:'점심',rooms:['F2-ENS'],note:''},
-    {start:'13:00',end:'16:00',title:'발레 레파토리',rooms:['F4-DANCE1','F4-DANCE2'],note:''},
-    {start:'16:00',end:'18:00',title:'클로징 세리머니',rooms:['F1-HALL'],note:''},
+    {start:'09:00',end:'10:00',title:'개별 연습',room:'F4-401',track:'A'},
+    {start:'09:00',end:'10:00',title:'개별 연습',room:'F4-402',track:'B'},
+    {start:'10:00',end:'12:00',title:'발레 클라스',room:'F4-401',track:'A',instructor:'Nadezhda Tsay'},
+    {start:'10:00',end:'12:00',title:'발레 클라스',room:'F4-402',track:'B',instructor:'채지영'},
+    {start:'12:00',end:'13:00',title:'점심',room:'F2-ENS',track:'ALL'},
+    {start:'13:00',end:'15:00',title:'발레 레파토리',room:'F4-401',track:'A',instructor:'Nadezhda Tsay'},
+    {start:'13:00',end:'15:00',title:'발레 레파토리',room:'F4-402',track:'B',instructor:'채지영'},
+    {start:'15:00',end:'15:30',title:'휴식',room:null,track:'ALL'},
+    {start:'15:30',end:'16:00',title:'정리 및 이동',room:null,track:'ALL',note:'추정'},
+    {start:'16:00',end:'18:00',title:'수료식',room:'F1-HALL',track:'ALL'},
   ]},
 ];
-
-// exact hourly grid from the leaflet, for the "전체 일정" faithful table
-const GRID_HOURS = ['09:00~10:00','10:00~11:00','11:00~12:00','12:00~13:00','13:00~14:00','14:00~15:00','15:00~16:00','16:00~17:00','17:00~18:00','18:00~19:00'];
-const GRID = {
-  'Day 1 · 7.17 (금)': ['접수 및 등록','오프닝 세리머니','오프닝 세리머니','점심','발레 클라스','발레 클라스','발레 클라스','발레 레파토리','발레 레파토리','발레 레파토리'],
-  'Day 2 · 7.18 (토)': ['개별 연습','발레 클라스','발레 클라스','점심','발레 레파토리','발레 레파토리','발레 레파토리','발레 클라스의 역사','피지컬 트레이닝','피지컬 트레이닝'],
-  'Day 3 · 7.19 (일)': ['개별 연습','발레 클라스','발레 클라스','점심','발레 레파토리','발레 레파토리','발레 레파토리','클로징 세리머니','클로징 세리머니',''],
-};
 
 // 총괄 체크리스트 (2026.07.14)
 const CHECKLIST = [
@@ -703,28 +711,30 @@ function findDayIndexByDate(dateStr){
   return SCHEDULE.findIndex(d => d.date === dateStr);
 }
 
-function findCurrentSession(dayIdx, minutes){
-  if(dayIdx < 0) return null;
+function findCurrentSessions(dayIdx, minutes){
+  if(dayIdx < 0) return [];
   const day = SCHEDULE[dayIdx];
-  for(const s of day.sessions){
-    if(minutes >= hhmmToMins(s.start) && minutes < hhmmToMins(s.end)) return s;
+  return day.sessions.filter(s => minutes >= hhmmToMins(s.start) && minutes < hhmmToMins(s.end));
+}
+function findNextSessions(dayIdx, minutes){
+  if(dayIdx < 0) return { sessions:[SCHEDULE[0].sessions[0]], day: SCHEDULE[0] };
+  const day = SCHEDULE[dayIdx];
+  const upcoming = day.sessions.filter(s => hhmmToMins(s.start) > minutes);
+  if(upcoming.length){
+    const earliest = Math.min(...upcoming.map(s=>hhmmToMins(s.start)));
+    return { sessions: upcoming.filter(s=>hhmmToMins(s.start)===earliest), day };
+  }
+  if(dayIdx+1 < SCHEDULE.length){
+    const nextDay = SCHEDULE[dayIdx+1];
+    const earliest = Math.min(...nextDay.sessions.map(s=>hhmmToMins(s.start)));
+    return { sessions: nextDay.sessions.filter(s=>hhmmToMins(s.start)===earliest), day: nextDay };
   }
   return null;
 }
-function findNextSession(dayIdx, minutes){
-  if(dayIdx < 0){
-    // before day1 or after all days -> just return first session of day 0 as reference
-    return { session: SCHEDULE[0].sessions[0], day: SCHEDULE[0] };
-  }
-  const day = SCHEDULE[dayIdx];
-  for(const s of day.sessions){
-    if(hhmmToMins(s.start) > minutes) return { session:s, day };
-  }
-  // no more sessions today -> next day's first
-  if(dayIdx+1 < SCHEDULE.length){
-    return { session: SCHEDULE[dayIdx+1].sessions[0], day: SCHEDULE[dayIdx+1] };
-  }
-  return null;
+function trackBadge(track){
+  if(track==='A') return '<span class="track-badge A">A반</span>';
+  if(track==='B') return '<span class="track-badge B">B반</span>';
+  return '';
 }
 
 /* =====================================================================
@@ -737,7 +747,7 @@ function renderDayTabs(){
     const btn = document.createElement('button');
     btn.className = 'day-tab' + (i===state.selectedDayIdx?' active':'');
     btn.textContent = d.label.split('·')[1].trim();
-    btn.onclick = ()=>{ state.selectedDayIdx = i; if(state.mode==='preview'){ render(); } else { render(); } };
+    btn.onclick = ()=>{ state.selectedDayIdx = i; render(); };
     wrap.appendChild(btn);
   });
 }
@@ -754,40 +764,40 @@ function tick(){
 function renderNowCard(){
   const eff = getEffectiveDateTime();
   const dayIdx = findDayIndexByDate(eff.dateStr);
-  const cur = findCurrentSession(dayIdx, eff.minutes);
+  const curList = findCurrentSessions(dayIdx, eff.minutes);
   const nowCard = document.getElementById('nowCard');
   const nextCard = document.getElementById('nextCard');
 
-  if(cur){
-    const startM = hhmmToMins(cur.start), endM = hhmmToMins(cur.end);
-    const pct = Math.min(100, Math.max(0, Math.round((eff.minutes-startM)/(endM-startM)*100)));
-    const roomNames = cur.rooms.map(r=>ROOMS[r].name).join(' · ');
-    nowCard.innerHTML = `
-      <div class="eyebrow"><span class="live-dot"></span>지금 진행 중</div>
-      <h2>${cur.title}</h2>
-      <div class="meta">${cur.start} – ${cur.end} · <b>${roomNames}</b>${cur.note? '<br>'+cur.note:''}</div>
-      <div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div>
-      <div class="progress-label"><span>${pct}% 경과</span><span>${eff.minutes>=0? Math.max(0,endM-eff.minutes):0}분 남음</span></div>
-    `;
+  if(curList.length){
+    nowCard.innerHTML = `<div class="eyebrow"><span class="live-dot"></span>지금 진행 중</div>` + curList.map(cur=>{
+      const startM = hhmmToMins(cur.start), endM = hhmmToMins(cur.end);
+      const pct = Math.min(100, Math.max(0, Math.round((eff.minutes-startM)/(endM-startM)*100)));
+      const roomName = cur.room ? ROOMS[cur.room].name : '';
+      return `
+        <h2>${trackBadge(cur.track)}${cur.title}</h2>
+        <div class="meta">${cur.start} – ${cur.end}${roomName? ' · <b>'+roomName+'</b>':''}${cur.instructor? ' · '+cur.instructor:''}${cur.note? '<br>'+cur.note:''}</div>
+        <div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div>
+        <div class="progress-label"><span>${pct}% 경과</span><span>${Math.max(0,endM-eff.minutes)}분 남음</span></div>
+      `;
+    }).join('<div style="height:10px;"></div>');
   } else {
     nowCard.innerHTML = `
       <div class="eyebrow"><span class="live-dot" style="background:var(--upcoming);"></span>진행 중인 세션 없음</div>
-      <div class="empty-note">현재 시각 기준 진행 중인 세션이 없습니다. 개별 연습·이동 시간이거나 워크숍 시간 외입니다.</div>
+      <div class="empty-note">현재 시각 기준 진행 중인 세션이 없습니다. 이동·대기 시간이거나 워크숍 시간 외입니다.</div>
     `;
   }
 
-  const nxt = findNextSession(dayIdx, eff.minutes);
-  if(nxt && nxt.session){
-    const roomNames = nxt.session.rooms.map(r=>ROOMS[r].name).join(' · ');
-    nextCard.innerHTML = `
-      <div class="eyebrow">다음 세션</div>
-      <div class="name">${nxt.session.title}</div>
-      <div class="time">${nxt.session.start} 시작 · ${roomNames}</div>
-    `;
+  const nxt = findNextSessions(dayIdx, eff.minutes);
+  if(nxt && nxt.sessions && nxt.sessions.length){
+    nextCard.innerHTML = `<div class="eyebrow">다음 세션</div>` + nxt.sessions.map(s=>{
+      const roomName = s.room ? ROOMS[s.room].name : '';
+      return `<div class="name">${trackBadge(s.track)}${s.title}</div><div class="time">${s.start} 시작${roomName? ' · '+roomName:''}</div>`;
+    }).join('');
   } else {
     nextCard.innerHTML = `<div class="eyebrow">다음 세션</div><div class="time">예정된 세션 없음 (일정 종료)</div>`;
   }
 }
+
 
 /* =====================================================================
    RENDER: BUILDING / ROOMS
@@ -796,22 +806,20 @@ function roomStatusFor(roomKey, dayIdx, minutes){
   if(ROOMS[roomKey].type === 'amenity') return {status:'amenity', session:null};
   if(dayIdx < 0) return {status:'done', session:null};
   const day = SCHEDULE[dayIdx];
+  const upcoming = [];
   for(const s of day.sessions){
-    if(s.rooms.includes(roomKey)){
-      const st = hhmmToMins(s.start), en = hhmmToMins(s.end);
-      if(minutes >= st && minutes < en) return {status:'live', session:s};
-      if(minutes < st) return {status:'upcoming', session:s};
-    }
+    if(s.room !== roomKey) continue;
+    const st = hhmmToMins(s.start), en = hhmmToMins(s.end);
+    if(minutes >= st && minutes < en) return {status:'live', session:s};
+    if(minutes < st) upcoming.push(s);
+  }
+  if(upcoming.length){
+    upcoming.sort((a,b)=>hhmmToMins(a.start)-hhmmToMins(b.start));
+    return {status:'upcoming', session:upcoming[0]};
   }
   return {status:'done', session:null};
 }
 
-function statusFillClass(status){
-  if(status==='live') return 'plan-live';
-  if(status==='upcoming') return 'plan-upcoming';
-  if(status==='amenity') return 'plan-amenity';
-  return 'plan-done';
-}
 function statusLabelText(status){
   if(status==='live') return '진행중';
   if(status==='upcoming') return '예정';
@@ -826,48 +834,32 @@ function renderBuilding(){
   wrap.innerHTML = '';
 
   FLOOR_ORDER.forEach(floor=>{
-    const plan = FLOOR_PLANS[floor];
+    const roomKeys = Object.keys(ROOMS).filter(k=>ROOMS[k].floor===floor);
     const floorDiv = document.createElement('div');
     floorDiv.className = 'floor';
-
-    let svgRooms = '';
-    plan.rooms.forEach(r=>{
-      const room = ROOMS[r.key];
-      const st = roomStatusFor(r.key, dayIdx, eff.minutes);
-      const cls = statusFillClass(st.status);
-      const labelY = r.y + 24;
-      const sessionText = st.session ? st.session.title : (room.type==='amenity' ? room.icon+' '+room.name : '');
-      svgRooms += `
-        <g class="plan-room ${cls}" data-room="${r.key}" tabindex="0" role="button" aria-label="${room.name}">
-          <rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="10"></rect>
-          <text x="${r.x+12}" y="${labelY}" class="plan-room-name">${room.type==='amenity'? (room.icon+' '):''}${room.name}</text>
-          <text x="${r.x+12}" y="${labelY+20}" class="plan-room-sub">${sessionText}</text>
-        </g>`;
+    let rowsHtml = '';
+    roomKeys.forEach(rk=>{
+      const room = ROOMS[rk];
+      const st = roomStatusFor(rk, dayIdx, eff.minutes);
+      const statusLabel = statusLabelText(st.status);
+      const cardClass = st.status==='live' ? 'live' : (st.status==='upcoming'?'upcoming':'');
+      rowsHtml += `
+        <div class="room-card ${cardClass}" data-room="${rk}">
+          <div class="r-name">${room.type==='amenity'?(room.icon+' '):''}${room.name}</div>
+          <div class="r-session">${st.session ? st.session.title : '&nbsp;'}</div>
+          <span class="status-pill ${st.status}"><span class="dot"></span>${statusLabel}</span>
+          ${st.session ? `<div class="r-sub">${st.session.start}–${st.session.end}</div>` : ''}
+        </div>`;
     });
-
     floorDiv.innerHTML = `
-      <div class="floor-head"><span class="floor-badge">${floor}</span><span class="floor-name">${plan.rooms.map(r=>ROOMS[r.key].name).join(' · ')}</span></div>
-      <svg viewBox="${plan.viewBox}" class="floor-plan-svg" preserveAspectRatio="xMidYMid meet">${svgRooms}</svg>
+      <div class="floor-head"><span class="floor-badge">${floor}</span><span class="floor-name">${roomKeys.map(k=>ROOMS[k].name).join(' · ')}</span></div>
+      <div class="rooms-row">${rowsHtml}</div>
     `;
     wrap.appendChild(floorDiv);
   });
 
-  // legend (once, above floors)
-  if(!document.getElementById('planLegend')){
-    const legend = document.createElement('div');
-    legend.id = 'planLegend';
-    legend.className = 'plan-legend';
-    legend.innerHTML = `
-      <span><i class="sw plan-live"></i>진행중</span>
-      <span><i class="sw plan-upcoming"></i>예정</span>
-      <span><i class="sw plan-done"></i>비어있음</span>
-      <span><i class="sw plan-amenity"></i>화장실·휴게실 등 편의시설</span>`;
-    wrap.parentElement.insertBefore(legend, wrap);
-  }
-
-  wrap.querySelectorAll('.plan-room').forEach(g=>{
-    g.addEventListener('click', ()=> openRoomModal(g.getAttribute('data-room')));
-    g.addEventListener('keypress', (e)=>{ if(e.key==='Enter') openRoomModal(g.getAttribute('data-room')); });
+  wrap.querySelectorAll('.room-card').forEach(card=>{
+    card.onclick = ()=> openRoomModal(card.getAttribute('data-room'));
   });
 }
 
@@ -891,44 +883,32 @@ function openRoomModal(roomKey){
   }
 
   document.getElementById('modalSub').textContent = st.session
-    ? `${st.status==='live'?'현재 진행 중':'다음 세션'} · ${st.session.title} (${st.session.start}–${st.session.end})`
+    ? `${st.status==='live'?'현재 진행 중':'다음 세션'} · ${trackBadge(st.session.track).replace(/<[^>]+>/g,'')} ${st.session.title} (${st.session.start}–${st.session.end})`
     : '현재 배정된 세션 없음';
 
   let peopleHtml = '';
-  if(roomKey==='F4-DANCE1' || roomKey==='F4-DANCE2'){
-    const groupName = roomKey==='F4-DANCE1' ? '무용실1' : '무용실2';
-    const people = PARTICIPANTS.filter(p=>p.group===groupName);
+  if(roomKey==='F4-401' || roomKey==='F4-402'){
+    const people = PARTICIPANTS.filter(p=>p.room===roomKey);
     peopleHtml = `
       <div class="modal-section">
         <h4>배정 학생 (${people.length}명)</h4>
         <div class="people-grid">
-          ${people.map(p=>`<div class="person-tag">${p.name}<span class="school">${p.school}</span></div>`).join('')}
+          ${people.map(p=>`<div class="person-tag" style="cursor:pointer;" data-student="${p.name}">${p.name}<span class="school">${p.school}</span></div>`).join('')}
         </div>
+        <div class="cl-note" style="font-size:11px;color:#9a9a9a;margin-top:6px;">학생을 클릭하면 담당 생활멘토·연락처를 볼 수 있어요.</div>
       </div>`;
   }
 
   let instructorHtml = '';
-  if(st.session){
-    let names = [];
-    if(st.session.title.includes('클라스') && !st.session.title.includes('역사')){
-      names = roomKey==='F4-DANCE1' ? ['Nadezhda Tsay (담당)','원경아 (반주)'] : roomKey==='F4-DANCE2' ? ['이은원 (담당)','김나연 (반주)'] : [];
-    } else if(st.session.title.includes('레파토리')){
-      names = roomKey==='F4-DANCE1' ? ['이수빈 (담당)','원경아 (반주)'] : roomKey==='F4-DANCE2' ? ['채지영 (담당)','김나연 (반주)'] : [];
-    } else if(st.session.title.includes('역사')){
-      names = ['정옥희 교수 (특강)'];
-    } else if(st.session.title.includes('피지컬')){
-      names = ['이대훈 대표 (특강)'];
-    } else if(st.session.title.includes('세리머니')){
-      names = ['류재광 PD (사회)'];
-    }
-    if(names.length){
-      instructorHtml = `
-        <div class="modal-section">
-          <h4>담당 강사 · 스태프</h4>
-          <div class="chip-row">${names.map(n=>`<span class="chip">${n}</span>`).join('')}</div>
-          ${(roomKey==='F4-DANCE1'||roomKey==='F4-DANCE2') ? '<div class="cl-note" style="font-size:11px;color:#9a9a9a;margin-top:6px;">※ 강사-호실 배정은 예시 기본값이며 현장 상황에 맞게 조정하세요.</div>' : ''}
-        </div>`;
-    }
+  if(st.session && st.session.instructor){
+    instructorHtml = `
+      <div class="modal-section">
+        <h4>담당 강사</h4>
+        <div class="chip-row"><span class="chip">${st.session.instructor}</span></div>
+        ${st.session.note ? `<div class="cl-note" style="font-size:11px;color:#9a7b2f;margin-top:6px;">${st.session.note}</div>` : ''}
+      </div>`;
+  } else if(st.session && st.session.note){
+    instructorHtml = `<div class="modal-section"><div class="cl-note" style="font-size:11.5px;color:var(--ink-soft);">${st.session.note}</div></div>`;
   }
 
   const facilityHtml = `
@@ -949,6 +929,43 @@ function openRoomModal(roomKey){
 
   document.getElementById('modalBody').innerHTML = instructorHtml + peopleHtml + facilityHtml + nearbyHtml;
   document.getElementById('overlay').classList.add('show');
+
+  document.querySelectorAll('#modalBody .person-tag[data-student]').forEach(el=>{
+    el.addEventListener('click', ()=> openStudentModal(el.getAttribute('data-student')));
+  });
+}
+
+function openStudentModal(name){
+  const p = PARTICIPANTS.find(x=>x.name===name);
+  const m = mentorOf(name);
+  if(!p) return;
+  document.getElementById('modalTitle').textContent = p.name;
+  document.getElementById('modalSub').textContent = `${p.school} · ${p.birth} · ${p.cls}반 (${ROOMS[p.room].name})`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-section">
+      <h4>담당 생활멘토</h4>
+      ${m ? `
+        <div class="chip-row"><span class="chip">${m.name}</span></div>
+        <div class="c-name" style="font-family:var(--mono);margin-top:6px;">${m.phone}</div>
+      ` : '<div class="empty-note" style="color:var(--ink-soft);">배정된 생활멘토 정보를 찾을 수 없습니다.</div>'}
+    </div>`;
+  document.getElementById('overlay').classList.add('show');
+}
+
+function openMentorModal(id){
+  const m = MENTORS.find(x=>x.id===id);
+  if(!m) return;
+  document.getElementById('modalTitle').textContent = `${m.name} 생활멘토`;
+  document.getElementById('modalSub').textContent = `${m.phone} · ${m.cls}반 담당 (${m.students.length}명)`;
+  const students = m.students.map(n=>PARTICIPANTS.find(p=>p.name===n)).filter(Boolean);
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-section">
+      <h4>담당 학생</h4>
+      <div class="people-grid">
+        ${students.map(p=>`<div class="person-tag">${p.name}<span class="school">${p.school}</span></div>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById('overlay').classList.add('show');
 }
 document.getElementById('modalClose').onclick = ()=> document.getElementById('overlay').classList.remove('show');
 document.getElementById('overlay').onclick = (e)=>{ if(e.target.id==='overlay') e.currentTarget.classList.remove('show'); };
@@ -958,18 +975,25 @@ document.getElementById('overlay').onclick = (e)=>{ if(e.target.id==='overlay') 
 ===================================================================== */
 function renderScheduleView(){
   const wrap = document.getElementById('scheduleWrap');
-  wrap.innerHTML = '';
-  Object.keys(GRID).forEach(label=>{
+  wrap.innerHTML = `<div class="assume-note">⚠ 노란 배경 항목은 자료상 표기가 불명확해 합리적으로 추정한 부분입니다. 확정되면 알려주시면 바로 반영할게요.</div>`;
+  SCHEDULE.forEach(day=>{
     const div = document.createElement('div');
     div.className = 'sched-day';
-    let rows = GRID_HOURS.map((h,i)=>`<tr><td class="t-time">${h}</td><td>${GRID[label][i] || ''}</td></tr>`).join('');
-    div.innerHTML = `<h3>${label}</h3>
-      <table class="grid-table"><thead><tr><th style="width:120px;">시간</th><th>프로그램</th></tr></thead>
-      <tbody>${rows}</tbody></table>`;
+    const rows = day.sessions.map(s=>{
+      const roomName = s.room ? ROOMS[s.room].name : '';
+      const isAssumed = s.note && (s.note.includes('추정'));
+      return `<div class="sched-row" style="${isAssumed?'background:#fbf3e0;border-radius:8px;':''}">
+        <div class="s-time">${s.start}–${s.end}</div>
+        <div class="s-body">
+          ${trackBadge(s.track)}<b>${s.title}</b>${roomName? ' · '+roomName:''}${s.instructor? ' · '+s.instructor:''}
+          ${s.note ? `<div class="s-note">${s.note}</div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+    div.innerHTML = `<h3>${day.label}</h3><div style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px 14px;">${rows}</div>`;
     wrap.appendChild(div);
   });
 }
-
 /* =====================================================================
    RENDER: PARTICIPANTS VIEW
 ===================================================================== */
@@ -978,18 +1002,43 @@ function renderParticipants(){
   const search = document.getElementById('pSearch').value.trim().toLowerCase();
   const grid = document.getElementById('pGrid');
   const filtered = PARTICIPANTS.filter(p=>{
-    const matchGroup = pFilter==='all' || p.group===pFilter;
+    const matchGroup = pFilter==='all' || p.cls===pFilter;
     const matchSearch = !search || p.name.toLowerCase().includes(search) || p.school.toLowerCase().includes(search);
     return matchGroup && matchSearch;
   });
   document.getElementById('pCount').textContent = `(${filtered.length}/${PARTICIPANTS.length}명)`;
-  grid.innerHTML = filtered.map(p=>`
-    <div class="p-card">
+  grid.innerHTML = filtered.map(p=>{
+    const m = mentorOf(p.name);
+    return `
+    <div class="p-card" data-student="${p.name}">
       <div class="p-name">${p.name}</div>
-      <div class="p-school">${p.school}</div>
-      <div class="p-group"><span class="chip">${p.group}</span></div>
-    </div>`).join('') || '<p style="color:var(--ink-soft);">검색 결과가 없습니다.</p>';
+      <div class="p-school">${p.school} · ${p.birth}</div>
+      <div class="p-group"><span class="track-badge ${p.cls}">${p.cls}반</span><span class="chip">${ROOMS[p.room].name.split('·')[0].trim()}</span></div>
+      ${m ? `<div class="cl-note" style="font-size:11px;color:#9a9a9a;margin-top:6px;">멘토: ${m.name}</div>` : ''}
+    </div>`;
+  }).join('') || '<p style="color:var(--ink-soft);">검색 결과가 없습니다.</p>';
+
+  grid.querySelectorAll('.p-card').forEach(el=>{
+    el.addEventListener('click', ()=> openStudentModal(el.getAttribute('data-student')));
+  });
 }
+
+/* =====================================================================
+   RENDER: MENTORS VIEW
+===================================================================== */
+function renderMentors(){
+  const grid = document.getElementById('mentorGrid');
+  grid.innerHTML = MENTORS.map(m=>`
+    <div class="mentor-card" data-mentor="${m.id}">
+      <div class="m-name">${trackBadge(m.cls)}${m.name}</div>
+      <div class="m-phone">${m.phone}</div>
+      <div class="chip-row">${m.students.map(n=>`<span class="chip">${n}</span>`).join('')}</div>
+    </div>`).join('');
+  grid.querySelectorAll('.mentor-card').forEach(el=>{
+    el.addEventListener('click', ()=> openMentorModal(el.getAttribute('data-mentor')));
+  });
+}
+
 
 /* =====================================================================
    RENDER: FACULTY VIEW
@@ -1103,6 +1152,7 @@ document.getElementById('navList').addEventListener('click', (e)=>{
   document.getElementById('view-'+view).classList.add('active');
   if(view==='schedule') renderScheduleView();
   if(view==='participants') renderParticipants();
+  if(view==='mentors') renderMentors();
   if(view==='faculty') renderFaculty();
   if(view==='safety') renderContacts();
   if(view==='checklist') renderChecklist();
