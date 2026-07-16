@@ -383,7 +383,7 @@
     <div class="view" id="view-safety">
       <div class="view-header">
         <h1>안전 · 비상연락망</h1>
-        <p>실제 전화번호는 현장 확정 시 아래에서 직접 입력하면 운영팀 전체에 공유됩니다.</p>
+        <p>변동 시 아래에서 직접 수정하면 운영팀 전체 화면에 즉시 공유됩니다.</p>
       </div>
       <div class="alert-box">
         ⚠ 비상시 엘리베이터 탑승 금지 — 운영스텝 안내에 따라 이동 · 구급차는 오전 10:00~19:00 건물 앞 주차장 상시 대기
@@ -1014,18 +1014,16 @@ function renderFaculty(){
    RENDER: SAFETY VIEW (editable contacts)
 ===================================================================== */
 const CONTACT_ROLES = [
-  {key:'safety_lead', role:'안전총괄책임자'},
-  {key:'ops_office', role:'운영사무국'},
-  {key:'ambulance', role:'구급차 대기 담당'},
-  {key:'liaison', role:'리에종 (원해림)'},
-  {key:'life_mentor_lead', role:'생활멘토 조장'},
+  {key:'safety_lead', role:'총괄책임자', name:'이동훈 팀장', defaultPhone:'010-6335-0182'},
+  {key:'ops_office', role:'운영사무국', name:'김정래 실장', defaultPhone:'010-4249-0000'},
+  {key:'life_mentor_lead', role:'생활멘토 관련', name:'백종선 PD', defaultPhone:'010-2000-7984'},
 ];
 function renderContacts(){
   const wrap = document.getElementById('contactList');
   wrap.innerHTML = CONTACT_ROLES.map(r=>`
     <div class="contact-row">
-      <div><div class="c-role">${r.role}</div></div>
-      <input type="text" placeholder="연락처 입력" value="${state.contacts[r.key]||''}" data-key="${r.key}">
+      <div><div class="c-role">${r.role}</div><div class="c-name">${r.name}</div></div>
+      <input type="text" placeholder="연락처 입력" value="${(state.contacts[r.key] ?? r.defaultPhone) || ''}" data-key="${r.key}">
     </div>`).join('');
   wrap.querySelectorAll('input').forEach(inp=>{
     inp.addEventListener('change', async (e)=>{
