@@ -168,6 +168,26 @@
   .status-pill .dot{width:6px;height:6px;border-radius:50%;background:#fff;}
   .r-sub{font-size:11px;color:#8a8f98;margin-top:6px;}
 
+  /* Floor plan (SVG schematic) */
+  .plan-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--ink-soft);margin-bottom:12px;}
+  .plan-legend .sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+  .floor-plan-svg{width:100%;height:auto;display:block;}
+  .plan-room rect{stroke-width:1.5;transition:filter .15s;}
+  .plan-room{cursor:pointer;outline:none;}
+  .plan-room:hover rect{filter:brightness(0.97);}
+  .plan-room:focus rect{stroke:var(--navy);stroke-width:2.5;}
+  .plan-room-name{font-family:var(--sans);font-size:15px;font-weight:800;fill:var(--ink);}
+  .plan-room-sub{font-family:var(--sans);font-size:11.5px;fill:var(--ink-soft);}
+  .plan-room.plan-live rect{fill:var(--live-soft);stroke:var(--live);}
+  .plan-room.plan-live .sw, .sw.plan-live{background:var(--live);}
+  .plan-room.plan-upcoming rect{fill:#fff;stroke:#dcd3b5;}
+  .sw.plan-upcoming{background:#dcd3b5;}
+  .plan-room.plan-done rect{fill:#f7f4ea;stroke:var(--line);}
+  .sw.plan-done{background:#f7f4ea;border:1px solid var(--line);}
+  .plan-room.plan-amenity rect{fill:#eef3f8;stroke:#c7d5e2;}
+  .sw.plan-amenity{background:#eef3f8;border:1px solid #c7d5e2;}
+  .plan-room.plan-amenity .plan-room-name, .plan-room.plan-amenity .plan-room-sub{fill:#5b7186;}
+
   /* Modal */
   .overlay{
     position:fixed;inset:0;background:rgba(15,25,35,.5);z-index:100;
@@ -320,8 +340,8 @@
     <!-- HOME -->
     <div class="view active" id="view-home">
       <div class="view-header">
-        <h1>층별 현황판</h1>
-        <p>호실을 클릭하면 현재(또는 선택된 시각) 진행 중인 세션의 학생 그룹·담당 강사·시설 체크리스트를 볼 수 있어요.</p>
+        <h1>층별 평면도</h1>
+        <p>개략 배치도(실측 도면 아님) · 호실을 클릭하면 현재(또는 선택된 시각) 진행 세션의 학생 그룹·담당 강사·시설 체크리스트를, 화장실·휴게실은 위치 안내를 볼 수 있어요.</p>
       </div>
       <div class="building" id="buildingWrap"></div>
     </div>
@@ -444,14 +464,45 @@
    DATA
 ===================================================================== */
 const ROOMS = {
-  'F1-LOBBY': {floor:'1F', name:'로비 · 접수데스크', facilities:['안내 pop / 안내책자 / 명찰 / 웰컴키트 배치','짐 보관함 및 라벨']},
-  'F1-HALL' : {floor:'1F', name:'강당', facilities:['음향·조명 시스템','WIFI(예비 에그 1개)','오프닝/클로징 세리머니 무대']},
-  'F2-ENS'  : {floor:'2F', name:'합주실 (운영사무국·식사공간)', facilities:['운영사무국 좌석 24~32석','참가자 휴식·성장노트 작성 공간 31석','간식/음료 상시 비치']},
-  'F4-DANCE1': {floor:'4F', name:'무용실 1', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
-  'F4-DANCE2': {floor:'4F', name:'무용실 2', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
-  'F4-LOCKER': {floor:'4F', name:'탈의실', facilities:['물품보관대 (이름 라벨)']},
+  'F1-LOBBY': {floor:'1F', name:'로비 · 접수데스크', type:'teaching', facilities:['안내 pop / 안내책자 / 명찰 / 웰컴키트 배치','짐 보관함 및 라벨']},
+  'F1-HALL' : {floor:'1F', name:'강당', type:'teaching', facilities:['음향·조명 시스템','WIFI(예비 에그 1개)','오프닝/클로징 세리머니 무대']},
+  'F1-WC'   : {floor:'1F', name:'화장실', type:'amenity', icon:'🚻', facilities:['로비 · 강당 인근']},
+  'F2-ENS'  : {floor:'2F', name:'합주실 (운영사무국·식사공간)', type:'teaching', facilities:['운영사무국 좌석 24~32석','참가자 휴식·성장노트 작성 공간 31석','간식/음료 상시 비치']},
+  'F2-LOUNGE':{floor:'2F', name:'교수 휴게실', type:'amenity', icon:'☕', facilities:['커피·탄산수·음료·간식 상시 비치','교강사 대기 공간']},
+  'F2-WC'   : {floor:'2F', name:'화장실', type:'amenity', icon:'🚻', facilities:['합주실 인근']},
+  'F4-DANCE1': {floor:'4F', name:'무용실 1', type:'teaching', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
+  'F4-DANCE2': {floor:'4F', name:'무용실 2', type:'teaching', facilities:['바닥 상태 / 거울 / 봉 점검','조명·음향 점검','USB 음악 재생 시스템']},
+  'F4-LOCKER': {floor:'4F', name:'탈의실', type:'teaching', facilities:['물품보관대 (이름 라벨)']},
+  'F4-WC'   : {floor:'4F', name:'화장실', type:'amenity', icon:'🚻', facilities:['무용실 · 탈의실 인근']},
 };
 const FLOOR_ORDER = ['1F','2F','4F'];
+
+// 개략 배치도(스케마틱): 실측 도면이 아니라 자료상 위치 관계를 바탕으로 구성한 참고용 좌표입니다.
+const FLOOR_PLANS = {
+  '1F': { viewBox:'0 0 640 240', rooms:[
+    {key:'F1-LOBBY', x:20,  y:20, w:340, h:200},
+    {key:'F1-HALL',  x:380, y:20, w:180, h:200},
+    {key:'F1-WC',    x:580, y:20, w:40,  h:90},
+  ]},
+  '2F': { viewBox:'0 0 640 240', rooms:[
+    {key:'F2-ENS',    x:20,  y:20, w:400, h:200},
+    {key:'F2-LOUNGE', x:440, y:20, w:160, h:95},
+    {key:'F2-WC',     x:440, y:125,w:160, h:95},
+  ]},
+  '4F': { viewBox:'0 0 640 240', rooms:[
+    {key:'F4-DANCE1', x:20,  y:20, w:230, h:200},
+    {key:'F4-DANCE2', x:270, y:20, w:230, h:200},
+    {key:'F4-LOCKER', x:520, y:20, w:100, h:95},
+    {key:'F4-WC',     x:520, y:125,w:100, h:95},
+  ]}
+};
+
+// 각 실별 인근 편의시설(화장실·휴게실) 안내용
+const NEARBY = {
+  'F1-LOBBY':['F1-WC'], 'F1-HALL':['F1-WC'],
+  'F2-ENS':['F2-WC','F2-LOUNGE'],
+  'F4-DANCE1':['F4-WC','F4-LOCKER'], 'F4-DANCE2':['F4-WC','F4-LOCKER'],
+};
 
 // participants: 22 elementary -> 무용실1, 9 middle/homeschool -> 무용실2
 const PARTICIPANTS = [
@@ -742,6 +793,7 @@ function renderNowCard(){
    RENDER: BUILDING / ROOMS
 ===================================================================== */
 function roomStatusFor(roomKey, dayIdx, minutes){
+  if(ROOMS[roomKey].type === 'amenity') return {status:'amenity', session:null};
   if(dayIdx < 0) return {status:'done', session:null};
   const day = SCHEDULE[dayIdx];
   for(const s of day.sessions){
@@ -754,6 +806,19 @@ function roomStatusFor(roomKey, dayIdx, minutes){
   return {status:'done', session:null};
 }
 
+function statusFillClass(status){
+  if(status==='live') return 'plan-live';
+  if(status==='upcoming') return 'plan-upcoming';
+  if(status==='amenity') return 'plan-amenity';
+  return 'plan-done';
+}
+function statusLabelText(status){
+  if(status==='live') return '진행중';
+  if(status==='upcoming') return '예정';
+  if(status==='amenity') return '편의시설';
+  return '비어있음';
+}
+
 function renderBuilding(){
   const eff = getEffectiveDateTime();
   const dayIdx = findDayIndexByDate(eff.dateStr);
@@ -761,32 +826,48 @@ function renderBuilding(){
   wrap.innerHTML = '';
 
   FLOOR_ORDER.forEach(floor=>{
-    const roomKeys = Object.keys(ROOMS).filter(k=>ROOMS[k].floor===floor);
+    const plan = FLOOR_PLANS[floor];
     const floorDiv = document.createElement('div');
     floorDiv.className = 'floor';
-    let rowsHtml = '';
-    roomKeys.forEach(rk=>{
-      const room = ROOMS[rk];
-      const st = roomStatusFor(rk, dayIdx, eff.minutes);
-      const statusLabel = st.status==='live' ? '진행중' : (st.status==='upcoming' ? '예정' : '비어있음');
-      const cardClass = st.status==='live' ? 'live' : (st.status==='upcoming'?'upcoming':'');
-      rowsHtml += `
-        <div class="room-card ${cardClass}" data-room="${rk}">
-          <div class="r-name">${room.name}</div>
-          <div class="r-session">${st.session ? st.session.title : '&nbsp;'}</div>
-          <span class="status-pill ${st.status}"><span class="dot"></span>${statusLabel}</span>
-          ${st.session ? `<div class="r-sub">${st.session.start}–${st.session.end}</div>` : ''}
-        </div>`;
+
+    let svgRooms = '';
+    plan.rooms.forEach(r=>{
+      const room = ROOMS[r.key];
+      const st = roomStatusFor(r.key, dayIdx, eff.minutes);
+      const cls = statusFillClass(st.status);
+      const labelY = r.y + 24;
+      const sessionText = st.session ? st.session.title : (room.type==='amenity' ? room.icon+' '+room.name : '');
+      svgRooms += `
+        <g class="plan-room ${cls}" data-room="${r.key}" tabindex="0" role="button" aria-label="${room.name}">
+          <rect x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="10"></rect>
+          <text x="${r.x+12}" y="${labelY}" class="plan-room-name">${room.type==='amenity'? (room.icon+' '):''}${room.name}</text>
+          <text x="${r.x+12}" y="${labelY+20}" class="plan-room-sub">${sessionText}</text>
+        </g>`;
     });
+
     floorDiv.innerHTML = `
-      <div class="floor-head"><span class="floor-badge">${floor}</span><span class="floor-name">${roomKeys.map(k=>ROOMS[k].name).join(' · ')}</span></div>
-      <div class="rooms-row">${rowsHtml}</div>
+      <div class="floor-head"><span class="floor-badge">${floor}</span><span class="floor-name">${plan.rooms.map(r=>ROOMS[r.key].name).join(' · ')}</span></div>
+      <svg viewBox="${plan.viewBox}" class="floor-plan-svg" preserveAspectRatio="xMidYMid meet">${svgRooms}</svg>
     `;
     wrap.appendChild(floorDiv);
   });
 
-  wrap.querySelectorAll('.room-card').forEach(card=>{
-    card.onclick = ()=> openRoomModal(card.getAttribute('data-room'));
+  // legend (once, above floors)
+  if(!document.getElementById('planLegend')){
+    const legend = document.createElement('div');
+    legend.id = 'planLegend';
+    legend.className = 'plan-legend';
+    legend.innerHTML = `
+      <span><i class="sw plan-live"></i>진행중</span>
+      <span><i class="sw plan-upcoming"></i>예정</span>
+      <span><i class="sw plan-done"></i>비어있음</span>
+      <span><i class="sw plan-amenity"></i>화장실·휴게실 등 편의시설</span>`;
+    wrap.parentElement.insertBefore(legend, wrap);
+  }
+
+  wrap.querySelectorAll('.plan-room').forEach(g=>{
+    g.addEventListener('click', ()=> openRoomModal(g.getAttribute('data-room')));
+    g.addEventListener('keypress', (e)=>{ if(e.key==='Enter') openRoomModal(g.getAttribute('data-room')); });
   });
 }
 
@@ -796,7 +877,19 @@ function openRoomModal(roomKey){
   const room = ROOMS[roomKey];
   const st = roomStatusFor(roomKey, dayIdx, eff.minutes);
 
-  document.getElementById('modalTitle').textContent = `${room.floor} · ${room.name}`;
+  document.getElementById('modalTitle').textContent = `${room.floor} · ${room.type==='amenity'?(room.icon+' '):''}${room.name}`;
+
+  if(room.type === 'amenity'){
+    document.getElementById('modalSub').textContent = '편의시설';
+    document.getElementById('modalBody').innerHTML = `
+      <div class="modal-section">
+        <h4>안내</h4>
+        <ul class="facility-list">${room.facilities.map(f=>`<li>${f}</li>`).join('')}</ul>
+      </div>`;
+    document.getElementById('overlay').classList.add('show');
+    return;
+  }
+
   document.getElementById('modalSub').textContent = st.session
     ? `${st.status==='live'?'현재 진행 중':'다음 세션'} · ${st.session.title} (${st.session.start}–${st.session.end})`
     : '현재 배정된 세션 없음';
@@ -844,7 +937,17 @@ function openRoomModal(roomKey){
       <ul class="facility-list">${room.facilities.map(f=>`<li>${f}</li>`).join('')}</ul>
     </div>`;
 
-  document.getElementById('modalBody').innerHTML = instructorHtml + peopleHtml + facilityHtml;
+  let nearbyHtml = '';
+  const nearKeys = NEARBY[roomKey];
+  if(nearKeys && nearKeys.length){
+    nearbyHtml = `
+      <div class="modal-section">
+        <h4>인근 편의시설</h4>
+        <div class="chip-row">${nearKeys.map(k=>`<span class="chip">${ROOMS[k].icon||''} ${ROOMS[k].name}</span>`).join('')}</div>
+      </div>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = instructorHtml + peopleHtml + facilityHtml + nearbyHtml;
   document.getElementById('overlay').classList.add('show');
 }
 document.getElementById('modalClose').onclick = ()=> document.getElementById('overlay').classList.remove('show');
