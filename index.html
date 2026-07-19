@@ -256,6 +256,15 @@
   .sched-row .s-time{font-family:var(--mono);font-weight:700;color:var(--navy);width:100px;flex:none;}
   .sched-row .s-body{flex:1;}
   .sched-row .s-note{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+  .s-links{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px;}
+  .s-link-btn{
+    display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;
+    background:var(--gold);color:var(--navy);padding:5px 10px;border-radius:20px;text-decoration:none;
+  }
+  .s-link-btn:hover{background:#e8c374;}
+  .now-strip .s-link-btn{background:var(--gold);color:var(--navy);}
+  .modal-body .s-link-btn{background:var(--navy);color:#fff;}
+  .modal-body .s-link-btn:hover{background:var(--navy-3);}
   .assume-note{font-size:11px;color:#9a7b2f;background:#fbf3e0;border:1px solid #f0dcae;border-radius:8px;padding:8px 10px;margin-bottom:12px;}
 
   /* Schedule: TV-guide style horizontal layout */
@@ -643,7 +652,8 @@ const SCHEDULE = [
     {start:'13:00',end:'15:00',title:'발레 레파토리',room:'F4-402',track:'B',instructor:'채지영'},
     {start:'15:00',end:'15:30',title:'휴식',room:null,track:'ALL'},
     {start:'15:30',end:'16:00',title:'정리 및 이동',room:null,track:'ALL',note:'추정'},
-    {start:'16:00',end:'18:00',title:'수료식',room:'F1-HALL',track:'ALL'},
+    {start:'16:00',end:'18:00',title:'수료식',room:'F1-HALL',track:'ALL',
+      links:[{label:'📎 클로징 세리머니 자료 (시나리오·PPT)',url:'https://drive.google.com/drive/folders/1w7hYScYW8gNCmqWMzNY6OTrWD9IwolhB?usp=sharing'}]},
   ]},
 ];
 
@@ -757,6 +767,13 @@ function tick(){
   measureTopbarHeight();
 }
 
+function sessionLinksHtml(session){
+  if(!session.links || !session.links.length) return '';
+  return `<div class="s-links">${session.links.map(l=>
+    `<a class="s-link-btn" href="${l.url}" target="_blank" rel="noopener">${l.label}</a>`
+  ).join('')}</div>`;
+}
+
 function renderNowCard(){
   const eff = getEffectiveDateTime();
   const dayIdx = findDayIndexByDate(eff.dateStr);
@@ -774,6 +791,7 @@ function renderNowCard(){
         <div class="meta">${cur.start} – ${cur.end}${roomName? ' · <b>'+roomName+'</b>':''}${cur.instructor? ' · '+cur.instructor:''}${cur.note? '<br>'+cur.note:''}</div>
         <div class="progress-track"><div class="progress-fill" style="width:${pct}%;"></div></div>
         <div class="progress-label"><span>${pct}% 경과</span><span>${Math.max(0,endM-eff.minutes)}분 남음</span></div>
+        ${sessionLinksHtml(cur)}
       `;
     }).join('<div style="height:10px;"></div>');
   } else {
@@ -787,7 +805,7 @@ function renderNowCard(){
   if(nxt && nxt.sessions && nxt.sessions.length){
     nextCard.innerHTML = `<div class="eyebrow">다음 세션</div>` + nxt.sessions.map(s=>{
       const roomName = s.room ? ROOMS[s.room].name : '';
-      return `<div class="name">${trackBadge(s.track)}${s.title}</div><div class="time">${s.start} 시작${roomName? ' · '+roomName:''}</div>`;
+      return `<div class="name">${trackBadge(s.track)}${s.title}</div><div class="time">${s.start} 시작${roomName? ' · '+roomName:''}</div>${sessionLinksHtml(s)}`;
     }).join('');
   } else {
     nextCard.innerHTML = `<div class="eyebrow">다음 세션</div><div class="time">예정된 세션 없음 (일정 종료)</div>`;
@@ -937,7 +955,12 @@ function openRoomModal(roomKey){
       </div>`;
   }
 
-  document.getElementById('modalBody').innerHTML = instructorHtml + peopleHtml + facilityHtml + nearbyHtml;
+  let linksHtml = '';
+  if(st.session && st.session.links && st.session.links.length){
+    linksHtml = `<div class="modal-section"><h4>관련 자료</h4>${sessionLinksHtml(st.session)}</div>`;
+  }
+
+  document.getElementById('modalBody').innerHTML = instructorHtml + peopleHtml + facilityHtml + nearbyHtml + linksHtml;
   document.getElementById('overlay').classList.add('show');
 
   document.querySelectorAll('#modalBody .person-tag[data-student]').forEach(el=>{
@@ -1002,6 +1025,7 @@ function renderScheduleView(){
         <div class="s-body">
           ${trackBadge(s.track)}<b>${s.title}</b>${roomName? ' · '+roomName:''}${s.instructor? ' · '+s.instructor:''}
           ${s.note ? `<div class="s-note">${s.note}</div>` : ''}
+          ${sessionLinksHtml(s)}
         </div>
       </div>`;
     }).join('');
