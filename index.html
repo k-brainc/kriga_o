@@ -201,16 +201,19 @@
   .overlay.show{display:flex;}
   .overlay-nested{z-index:120;}
   .modal-small{max-width:380px;}
-  .overlay-doc{z-index:140;}
-  .modal-doc{max-width:960px;width:94vw;}
-  .doc-modal-head{display:flex;align-items:center;gap:14px;padding-right:44px;}
+  .overlay-doc{z-index:140;padding:2.5vh 2.5vw;align-items:stretch;}
+  .modal-doc{
+    max-width:none;width:95vw;height:95vh;
+    display:flex;flex-direction:column;margin:auto;
+  }
+  .doc-modal-head{display:flex;align-items:center;gap:14px;padding-right:44px;flex:none;}
   .doc-modal-head h3{margin:0;flex:1;font-size:16px;}
   .doc-open-link{
     font-size:12px;font-weight:700;color:var(--gold-soft);text-decoration:none;
     background:rgba(255,255,255,.12);padding:6px 10px;border-radius:20px;white-space:nowrap;flex:none;
   }
   .doc-open-link:hover{background:rgba(255,255,255,.2);}
-  .doc-modal-body{padding:0;height:78vh;min-height:380px;}
+  .doc-modal-body{padding:0;flex:1;min-height:0;max-height:none;overflow:hidden;}
   .doc-frame{width:100%;height:100%;border:none;display:block;background:#fff;}
   .modal{
     background:#fff;border-radius:16px;max-width:560px;width:100%;padding:0;overflow:hidden;
