@@ -349,11 +349,15 @@
   .pc-content{padding:22px;}
   .pc-row-map{padding:16px 20px 0;background:var(--cream-2);border-bottom:1px solid var(--line);}
   .map-caption{font-size:11.5px;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
-  .map-wrap{position:relative;width:100%;max-width:640px;margin:0 auto 16px;border-radius:10px;
+  .map-wrap{position:relative;width:100%;max-width:1100px;margin:0 auto 16px;border-radius:10px;
     overflow:hidden;border:1px solid var(--line);background:#fff;}
   .map-img{display:block;width:100%;height:auto;}
   .map-gray{filter:grayscale(100%);opacity:.5;}
-  .map-color{position:absolute;top:0;left:0;transition:clip-path .3s ease;}
+  .map-color{position:absolute;top:0;left:0;transition:clip-path .3s ease;animation:mapBlink 1s ease-in-out infinite;}
+  @keyframes mapBlink{0%,100%{opacity:1;}50%{opacity:.15;}}
+  .map-hotspot{position:absolute;border:none;background:transparent;padding:0;margin:0;cursor:pointer;border-radius:4px;transition:background .15s;}
+  .map-hotspot:hover{background:rgba(201,146,47,.22);}
+  .map-hotspot.active{cursor:default;}
 </style>
 </head>
 <body>
@@ -1449,18 +1453,33 @@ function renderMapRow(){
 
   wrap.style.display = 'block';
   const room = state.detailPlaceKey ? state.detailPlaceKey.split('||')[1] : null;
-  const box = (ROOM_MAP_BOXES[building]||{})[room];
+  const boxes = ROOM_MAP_BOXES[building] || {};
+  const box = boxes[room];
   const clip = box
     ? `inset(${box[1]}% ${100-box[2]}% ${100-box[3]}% ${box[0]}% round 4px)`
     : 'inset(100%)';
 
+  const hotspots = Object.keys(boxes).map(r=>{
+    const [x0,y0,x1,y1] = boxes[r];
+    return `<button type="button" class="map-hotspot ${r===room?'active':''}" data-room="${r}"
+      style="left:${x0}%;top:${y0}%;width:${x1-x0}%;height:${y1-y0}%;" title="${r} 시간표 보기"></button>`;
+  }).join('');
+
   wrap.innerHTML = `
-    <div class="map-caption">${building} 평면도${room? ` · ${room} 위치 표시`:''}</div>
+    <div class="map-caption">${building} 평면도${room? ` · ${room} 위치 표시 (지도에서 호실을 눌러도 돼요)`:''}</div>
     <div class="map-wrap">
       <img class="map-img map-gray" src="${img}" alt="${building} 평면도">
       <img class="map-img map-color" src="${img}" alt="" style="clip-path:${clip};">
+      ${hotspots}
     </div>
   `;
+  wrap.querySelectorAll('.map-hotspot').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.detailPlaceKey = `${building}||${btn.getAttribute('data-room')}`;
+      state.detailPlaceExpandedIdx = null;
+      renderHome();
+    });
+  });
 }
 
 function renderHome(){
