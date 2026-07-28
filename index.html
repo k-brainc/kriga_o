@@ -363,7 +363,81 @@
   @keyframes mapBlink{0%,100%{opacity:1;}50%{opacity:.15;}}
   .map-hotspot{position:absolute;border:none;background:transparent;padding:0;margin:0;cursor:pointer;border-radius:4px;transition:background .15s;}
   .map-hotspot:hover{background:rgba(201,146,47,.22);}
-  .map-hotspot.active{cursor:default;}
+  .map-hotspot.active{cursor:default;}/* =====================================================================
+   MOBILE OVERHAUL — 640px 이하 화면에서 줄바꿈 깨짐/가독성 문제 해결
+===================================================================== */
+@media (max-width:640px){
+  /* 상단바: 로고+제목 위, 시간 컨트롤 아래로 자연스럽게 줄바꿈 */
+  .topbar{padding:10px 14px;gap:8px;}
+  .brand .logo{height:32px;}
+  .brand .title{font-size:14px;}
+  .brand .sub{font-size:10px;display:none;}
+  .time-box{width:100%;justify-content:center;flex-wrap:wrap;padding:8px 10px;}
+  .time-box .clock{font-size:13px;min-width:44px;}
+  .mode-btn{font-size:11px;padding:6px 9px;}
+  .time-slider{width:100%;order:10;margin-top:2px;}
+  .topbar-day-tabs{width:100%;}
+
+  /* 지금/다음 스트립: 세로로 쌓기 */
+  .now-strip{flex-direction:column;align-items:stretch;gap:12px;padding:12px 14px;}
+  .ns-now,.ns-next{flex:none;width:100%;min-width:0;}
+  .now-strip h2{font-size:14.5px;}
+  .progress-track,.progress-label{max-width:none;}
+
+  /* 본문 여백/제목 축소, 긴 부제 줄바꿈 자연스럽게 */
+  .main{padding:16px 12px 40px;}
+  .view-header h1{font-size:19px;line-height:1.4;display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
+  .view-header h1 span{font-size:12px !important;}
+  .view-header p{font-size:12.5px;}
+
+  /* 카드 그리드: 한 줄에 하나씩, 억지로 좁게 쪼개지지 않게 */
+  .stat-grid,.field-grid,.p-grid,.fac-grid,.mini-grid{grid-template-columns:1fr;}
+  .fac-card,.p-card{gap:10px;}
+
+  /* 건물/호실 탭, 필터, 운영정보 탭: 가로 스크롤 + 줄바꿈 방지 */
+  .pc-row-building,.pc-row-room{padding:10px 12px;}
+  .pc-btn-building,.pc-btn-room,.ops-tab,.filter-btn,.topbar-day-tab,.place-btn{white-space:nowrap;}
+  .ops-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;}
+  .toolbar{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;}
+  .toolbar input[type=text]{min-width:140px;}
+
+  /* 표: 좌우 스크롤 가능함을 살짝 알려주는 힌트 */
+  .table-wrap{position:relative;}
+  .table-wrap::after{
+    content:"→ 좌우로 스크롤";
+    position:absolute;top:-20px;right:0;font-size:10px;color:var(--ink-soft);
+  }
+
+  /* 아코디언/스케줄 줄: 담당교수·장소를 제목 아래 줄로 자연스럽게 내림 */
+  .acc-head{flex-wrap:wrap;gap:4px 10px;}
+  .acc-time{width:auto;}
+  .acc-sub{max-width:100%;text-align:left;flex-basis:100%;order:5;font-size:11.5px;}
+  .acc-chevron{margin-left:auto;}
+  .sched-row{gap:8px;}
+  .sched-time{width:74px;font-size:11.5px;}
+  .sched-text{font-size:12.5px;}
+
+  /* 모달: 화면 폭에 맞춰 유동적으로, min-width로 인한 잘림 방지 */
+  .overlay{padding:0;align-items:flex-end;}
+  .modal, .modal.modal-wide{
+    max-width:100vw;min-width:0;width:100%;
+    border-radius:18px 18px 0 0;max-height:92vh;
+  }
+  .modal-head{padding:16px 18px;}
+  .modal-head h3{font-size:17px;}
+  .modal-body{padding:16px 18px 20px;max-height:calc(92vh - 74px);}
+
+  /* 교수 팝업 사진: 옆에 끼우지 말고 위아래로 쌓기 */
+  .fac-modal-photo-row{flex-direction:column;align-items:flex-start;gap:12px;}
+  .fac-modal-photo{width:84px;height:84px;align-self:center;}
+  .fac-modal-photo-row > div:first-child{width:100%;text-align:center;}
+
+  /* 정보 행: 라벨/값을 위아래로 쌓아서 좁은 폭에서도 안 잘리게 */
+  .info-row{flex-direction:column;gap:2px;}
+  .info-row .k{width:auto;font-weight:700;}
+
+  /* 사이드바 자동 간단모드는 초기화 로직(init)에서 처리되므로 여기서는 손대지 않음 */
+}
 </style>
 </head>
 <body>
