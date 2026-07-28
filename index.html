@@ -311,6 +311,12 @@
   .mini-card .mc-role{color:var(--ink-soft);font-size:12px;margin-top:4px;line-height:1.55;}
   .mini-card .mc-phone{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);margin-top:7px;}
   .mini-card .mc-note{font-size:11px;color:#a9782a;font-weight:700;margin-top:4px;}
+  .mark-badge{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;
+    border-radius:6px;font-weight:800;font-size:12.5px;padding:0 6px;}
+  .mark-o{background:var(--live-soft);color:var(--live);}
+  .mark-x{background:var(--alert-soft);color:var(--alert);}
+  .mark-dash{background:var(--cream-2);color:var(--ink-soft);}
+  .mark-note{background:var(--gold-soft);color:#8a6212;font-size:11px;white-space:nowrap;}
 
   /* ===== Accordion rows (장소별 시간표) ===== */
   /* ===== Student modal schedule (inline time / title / prof·place) ===== */
@@ -398,6 +404,8 @@
       <button data-view="schedule" title="전체 일정"><span class="ico">▤</span><span class="nav-label">전체 일정</span></button>
       <button data-view="students" title="학생 정보"><span class="ico">◍</span><span class="nav-label">학생 정보</span></button>
       <button data-view="faculty" title="교수진 정보"><span class="ico">✦</span><span class="nav-label">교수진 정보</span></button>
+      <button data-view="mentors" title="생활멘토"><span class="ico">♥</span><span class="nav-label">생활멘토</span></button>
+      <button data-view="attendance" title="오리엔테이션·교수회의"><span class="ico">🗓</span><span class="nav-label">오리엔테이션·교수회의</span></button>
       <button data-view="ops" title="운영 정보"><span class="ico">▣</span><span class="nav-label">운영 정보</span></button>
     </div>
 
@@ -460,6 +468,25 @@
         <input type="text" id="fSearch" placeholder="이름 또는 소속으로 검색...">
       </div>
       <div id="facultyWrap"></div>
+    </div>
+
+    <!-- MENTORS -->
+    <div class="view" id="view-mentors">
+      <div class="view-header">
+        <h1>생활멘토 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;" id="mentorCount"></span></h1>
+        <p>참가자 이동·안내, 연습 지원, 교수 수업 보조를 담당하는 전공자 멘토예요. 분야별로 정리되어 있어요.</p>
+      </div>
+      <div id="mentorsWrap"></div>
+    </div>
+
+    <!-- ATTENDANCE (오리엔테이션 · 교수회의) -->
+    <div class="view" id="view-attendance">
+      <div class="view-header">
+        <h1>오리엔테이션 · 교수회의 참석 명단 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;">(명단: xlsx · 참석여부: '26.7.27 계획안 기준)</span></h1>
+        <p>교강사·자문위원 20명의 참석 예정 명단이에요. O/X는 추진계획(안)에 기재된 참석 가능 여부이며, 실제 참석은 현장 서명으로 최종 확정돼요.</p>
+      </div>
+      <div class="ops-tabs" id="attendanceTabs"></div>
+      <div id="attendanceWrap"></div>
     </div>
 
     <!-- OPS -->
@@ -706,6 +733,37 @@ const LIFE_MENTORS = [
   {field:'연희', name:'김태현', org:'한국예술종합학교', phone:'010-4013-3178', note:'8/17, 8/23'},
 ];
 
+// 오리엔테이션 및 교수회의 참석 일정 ('26.7.27 기준)
+// marks 순서: [오리엔테이션·7/29(수), 8/15(토), 8/17(월), 8/23(일), 8/29(토) 수료식]
+// 참석 명단 공통 로스터 ('전통예술분야_교수회의_참석일정.xlsx' 기준, 20명)
+// 실제 참석 여부(O/X)는 현장 서명으로 기록되는 항목이라 업로드된 파일에는 아직 값이 없어요.
+// 그래서 모든 칸을 '-'(미기록)으로 표시합니다.
+const ATTENDANCE_ROSTER = [
+  {no:1, role:'가야금 교수', org:'한국예술종합학교 전통예술원', name:'김형섭', orient:'O', meeting:['O','O','O','O']},
+  {no:2, role:'가야금 강사', org:'한국예술영재교육원', name:'정진영', orient:'O', meeting:['O','O','O','O']},
+  {no:3, role:'거문고 교수', org:'한국예술종합학교 전통예술원', name:'유영주', orient:'O', meeting:['O','O','X','O']},
+  {no:4, role:'거문고 강사 · 융합창작', org:'국립국악원 민속악단', name:'이재하', orient:'X', meeting:['X','전통원 식사','O','O']},
+  {no:5, role:'해금 교수', org:'한국예술종합학교 전통예술원', name:'정수년', orient:'O', meeting:['O','O','O','O']},
+  {no:6, role:'해금 강사', org:'성남시립국악단', name:'김경흔', orient:'O', meeting:['O','O','X','O']},
+  {no:7, role:'타악 교수', org:'한국예술종합학교 전통예술원', name:'류경화', orient:'O', meeting:['O','O','O','O']},
+  {no:8, role:'타악 강사', org:'시흥시립전통예술단', name:'정초롱', orient:'O', meeting:['O','O','O','X']},
+  {no:9, role:'타악 강사', org:'굿프렌즈', name:'박범태', orient:'X', meeting:['X','X','X','O']},
+  {no:10, role:'판소리 교수', org:'이날치밴드', name:'안이호', orient:'O', meeting:['O','O','O','O']},
+  {no:11, role:'판소리 강사', org:'한국예술종합학교', name:'김유진', orient:'X', meeting:['X','X','X','X']},
+  {no:12, role:'판소리 강사', org:'한국예술종합학교', name:'이여진', orient:'X', meeting:['X','X','X','X']},
+  {no:13, role:'연희 교수', org:'시흥시립전통예술단', name:'김소민', orient:'O', meeting:['O','O','X','O']},
+  {no:14, role:'연희 강사', org:'시흥시립전통예술단', name:'임채현', orient:'O', meeting:['O','X','O','O']},
+  {no:15, role:'연희 강사', org:'남사당놀이보존회', name:'강동호', orient:'O', meeting:['O','X','X','X']},
+  {no:16, role:'융합창작', org:'서울예대 음악학부', name:'강상구', orient:'O', meeting:['O','전통원 식사','O','O']},
+  {no:17, role:'알렉산더', org:'쿵기닥 코퍼레이션', name:'이승아', orient:'O', meeting:['O','전통원 식사','X','X']},
+  {no:18, role:'알렉산더 강사', org:'국립국악관현악단', name:'유하늘', orient:'O', meeting:['O','전통원 식사','X','X']},
+  {no:19, role:'알렉산더 강사', org:'-', name:'임우성', orient:'O', meeting:['O','전통원 식사','X','X']},
+  {no:20, role:'자문위원 및 특강', org:'-', name:'권혜근', orient:'O', meeting:['O','O','X','X']},
+];
+// 위 orient/meeting 값은 '26.7.27 추진계획(안) 9쪽 표 기준으로, 아직 서명 확정 전 참고용 예정 표시예요.
+const ORIENTATION_COLUMNS = ['7/29(수)'];
+const MEETING_COLUMNS = ['7/29(수)','8/15(토)','8/17(월)','8/23(일)'];
+
 // 자문위원 명단
 const ADVISORS = [
   {name:'정수년', org:'한국예술종합학교', role:'교수', field:'해금', note:'자문위원장'},
@@ -850,7 +908,7 @@ const SCHEDULE_HOURS = [9,10,11,12,13,14,15,16,17,18];
 ===================================================================== */
 let state = { navMode:'full', sFieldFilter:'all', scheduleDayIdx:0, opsTab:0,
   detailPlaceKey:null, detailPlaceExpandedIdx:null, detailBuilding:null,
-  timeMode:'live', previewDayIdx:0, previewMinutes:600 };
+  timeMode:'live', previewDayIdx:0, previewMinutes:600, attendanceTab:0 };
 
 function measureTopbarHeight(){
   const tb = document.querySelector('.topbar');
@@ -1028,6 +1086,8 @@ function goToView(view){
   if(view==='schedule') renderScheduleView();
   if(view==='students') renderStudents();
   if(view==='faculty') renderFaculty();
+  if(view==='mentors') renderMentorsView();
+  if(view==='attendance') renderAttendanceView();
   if(view==='ops') renderOps();
   if(window.innerWidth < 880 && state.navMode === 'full'){ setNavMode('compact', true); }
 }
@@ -1162,6 +1222,12 @@ function openStudentModal(name){
       <h4>연락처</h4>
       <div class="info-row"><div class="k">학생</div><div class="v" style="font-family:var(--mono);">${s.phone}${s.email? ' · '+s.email:''}</div></div>
       <div class="info-row"><div class="k">보호자(${s.relation})</div><div class="v" style="font-family:var(--mono);">${s.guardianName} · ${s.guardianPhone}${s.guardianEmail? ' · '+s.guardianEmail:''}</div></div>
+    </div>
+    <div class="modal-section">
+      <h4>생활멘토</h4>
+      ${mentorsForField(s.field).map(m=>`
+        <div class="info-row"><div class="k">${m.name}</div><div class="v" style="font-family:var(--mono);">${m.org} · ${m.phone}${m.note?` <span style="color:var(--gold);font-family:var(--sans);font-weight:700;">(${m.note})</span>`:''}</div></div>
+      `).join('') || '<div class="notice-box">배정된 생활멘토 정보가 없어요.</div>'}
     </div>
     <div class="modal-section">
       <h4>7월 29일(1회차) 스케줄</h4>
@@ -1376,6 +1442,82 @@ const OPS_TAB_RENDERERS = [
   opsTabContent_session, opsTabContent_venue, opsTabContent_equipment,
   opsTabContent_people, opsTabContent_notes
 ];
+
+/* =====================================================================
+   MENTORS VIEW (생활멘토)
+===================================================================== */
+function mentorsForField(field){ return LIFE_MENTORS.filter(m=>m.field===field); }
+
+function renderMentorsView(){
+  document.getElementById('mentorCount').textContent = `(총 ${LIFE_MENTORS.length}명)`;
+  const fields = [...new Set(LIFE_MENTORS.map(m=>m.field))];
+  const groups = fields.map(field=>{
+    const members = mentorsForField(field);
+    const cards = members.map(m=>`
+      <div class="mini-card">
+        <div class="mc-name">${m.name}</div>
+        <div class="mc-role">${m.org}</div>
+        <div class="mc-phone">${m.phone}</div>
+        ${m.note?`<div class="mc-note">${m.note}</div>`:''}
+      </div>`).join('');
+    return `
+      <div class="fac-section">
+        <h3>${FIELD_ICON[field]||''} ${field} <span class="cnt">${members.length}명</span></h3>
+        <div class="mini-grid">${cards}</div>
+      </div>`;
+  }).join('');
+  document.getElementById('mentorsWrap').innerHTML = groups;
+}
+
+/* =====================================================================
+   ATTENDANCE VIEW (오리엔테이션 · 교수회의 참석 일정)
+===================================================================== */
+function markBadge(mark){
+  if(mark==='O') return `<span class="mark-badge mark-o">O</span>`;
+  if(mark==='X') return `<span class="mark-badge mark-x">X</span>`;
+  if(mark==='-') return `<span class="mark-badge mark-dash">-</span>`;
+  return `<span class="mark-badge mark-note">${mark}</span>`;
+}
+function attendanceTable(desc, columns, kind){
+  const rows = ATTENDANCE_ROSTER.map(r=>{
+    const marks = kind === 'orient' ? [r.orient] : r.meeting;
+    return `
+    <tr>
+      <td class="center">${r.no}</td>
+      <td>${r.role}</td>
+      <td>${r.org}</td>
+      <td><b>${r.name}</b></td>
+      ${marks.map(m=>`<td class="center">${markBadge(m)}</td>`).join('')}
+    </tr>`;
+  }).join('');
+  return `
+    <p class="ops-desc">${desc}</p>
+    <div class="table-wrap"><table class="mini-table">
+      <thead><tr>
+        <th>연번</th><th>구분</th><th>소속</th><th>성명</th>
+        ${columns.map(c=>`<th class="center">${c}</th>`).join('')}
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+}
+const ATTENDANCE_TABS = [
+  {label:'오리엔테이션', kind:'orient', desc:'7/29(수) 오리엔테이션 참석 예정 명단이에요. O/X는 \'26.7.27 추진계획(안) 기준 참고용 예정 표시로, 실제 참석은 현장 서명으로 최종 확정돼요.', columns:ORIENTATION_COLUMNS},
+  {label:'교수회의', kind:'meeting', desc:'7/29·8/15·8/17·8/23 회차별 교수회의(교강사 간담회) 참석 예정 명단이에요. O/X는 \'26.7.27 추진계획(안) 기준 참고용 예정 표시로, 실제 참석은 현장 서명으로 최종 확정돼요.', columns:MEETING_COLUMNS},
+];
+function renderAttendanceView(){
+  const tabsWrap = document.getElementById('attendanceTabs');
+  tabsWrap.innerHTML = ATTENDANCE_TABS.map((t,i)=>
+    `<button class="ops-tab ${state.attendanceTab===i?'active':''}" data-idx="${i}">${t.label}</button>`
+  ).join('');
+  tabsWrap.querySelectorAll('.ops-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.attendanceTab = Number(btn.getAttribute('data-idx'));
+      renderAttendanceView();
+    });
+  });
+  const active = ATTENDANCE_TABS[state.attendanceTab];
+  document.getElementById('attendanceWrap').innerHTML = attendanceTable(active.desc, active.columns, active.kind);
+}
 
 function renderOps(){
   const tabsWrap = document.getElementById('opsTabs');
