@@ -1280,48 +1280,96 @@ function openStudentModal(name){
   document.querySelector('.modal').classList.add('modal-wide');
   document.getElementById('modalTitle').textContent = s.name;
   document.getElementById('modalSub').textContent = `${FIELD_ICON[s.field]||''} ${s.field} · ${s.school} ${s.grade?s.grade+'학년':''}`;
+  modalActiveTab = 'schedule';
   document.getElementById('modalBody').innerHTML = `
-    <div class="modal-section">
-      <h4>기본 정보</h4>
-      <div class="info-row"><div class="k">출생연도</div><div class="v">${s.birth}년 (${s.gender})</div></div>
-      <div class="info-row"><div class="k">학교</div><div class="v">${s.school} · ${s.schoolLevel}${s.grade?' '+s.grade+'학년':''}</div></div>
-      <div class="info-row"><div class="k">지역</div><div class="v">${s.region}</div></div>
-      <div class="info-row"><div class="k">관리번호</div><div class="v">${s.no}</div></div>
-    </div>
-    <div class="modal-section">
-      <h4>연주곡목 / 작품명</h4>
-      <div class="info-row"><div class="v">${s.piece || '-'}</div></div>
-    </div>
-    <div class="modal-section">
-      <h4>연락처</h4>
-      <div class="info-row"><div class="k">학생</div><div class="v" style="font-family:var(--mono);">${s.phone}${s.email? ' · '+s.email:''}</div></div>
-      <div class="info-row"><div class="k">보호자(${s.relation})</div><div class="v" style="font-family:var(--mono);">${s.guardianName} · ${s.guardianPhone}${s.guardianEmail? ' · '+s.guardianEmail:''}</div></div>
-    </div>
-    <div class="modal-section">
-      <h4>생활멘토</h4>
-      ${mentorsForField(s.field).map(m=>`
-        <div class="info-row"><div class="k">${m.name}</div><div class="v" style="font-family:var(--mono);">${m.org} · ${m.phone}${m.note?` <span style="color:var(--gold);font-family:var(--sans);font-weight:700;">(${m.note})</span>`:''}</div></div>
-      `).join('') || '<div class="notice-box">배정된 생활멘토 정보가 없어요.</div>'}
-    </div>
-    <div class="modal-section">
-      <h4>7월 29일(1회차) 스케줄</h4>
-      <div id="modalScheduleWrap"></div>
-    </div>
+    <div class="ops-tabs" id="modalTabs" style="margin-bottom:16px;"></div>
+    <div id="modalTabContent"></div>
   `;
-  renderModalSchedule(s.name);
+  renderModalTabs(s);
   document.getElementById('overlay').classList.add('show');
+}
+
+let modalActiveTab = 'schedule';
+function renderModalTabs(s){
+  const tabsWrap = document.getElementById('modalTabs');
+  tabsWrap.innerHTML = `
+    <button class="ops-tab ${modalActiveTab==='schedule'?'active':''}" data-tab="schedule">스케줄</button>
+    <button class="ops-tab ${modalActiveTab==='info'?'active':''}" data-tab="info">학생 정보</button>
+  `;
+  tabsWrap.querySelectorAll('.ops-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      modalActiveTab = btn.getAttribute('data-tab');
+      renderModalTabs(s);
+    });
+  });
+
+  const content = document.getElementById('modalTabContent');
+  if(modalActiveTab === 'info'){
+    content.innerHTML = `
+      <div class="modal-section">
+        <h4>기본 정보</h4>
+        <div class="info-row"><div class="k">출생연도</div><div class="v">${s.birth}년 (${s.gender})</div></div>
+        <div class="info-row"><div class="k">학교</div><div class="v">${s.school} · ${s.schoolLevel}${s.grade?' '+s.grade+'학년':''}</div></div>
+        <div class="info-row"><div class="k">지역</div><div class="v">${s.region}</div></div>
+        <div class="info-row"><div class="k">관리번호</div><div class="v">${s.no}</div></div>
+      </div>
+      <div class="modal-section">
+        <h4>연주곡목 / 작품명</h4>
+        <div class="info-row"><div class="v">${s.piece || '-'}</div></div>
+      </div>
+      <div class="modal-section">
+        <h4>연락처</h4>
+        <div class="info-row"><div class="k">학생</div><div class="v" style="font-family:var(--mono);">${s.phone}${s.email? ' · '+s.email:''}</div></div>
+        <div class="info-row"><div class="k">보호자(${s.relation})</div><div class="v" style="font-family:var(--mono);">${s.guardianName} · ${s.guardianPhone}${s.guardianEmail? ' · '+s.guardianEmail:''}</div></div>
+      </div>
+      <div class="modal-section">
+        <h4>생활멘토</h4>
+        ${mentorsForField(s.field).map(m=>`
+          <div class="info-row"><div class="k">${m.name}</div><div class="v" style="font-family:var(--mono);">${m.org} · ${m.phone}${m.note?` <span style="color:var(--gold);font-family:var(--sans);font-weight:700;">(${m.note})</span>`:''}</div></div>
+        `).join('') || '<div class="notice-box">배정된 생활멘토 정보가 없어요.</div>'}
+      </div>
+    `;
+  } else {
+    content.innerHTML = `
+      <div class="modal-section">
+        <h4>7월 29일(1회차) 스케줄</h4>
+        <div id="modalScheduleWrap"></div>
+      </div>
+    `;
+    renderModalSchedule(s.name);
+  }
+}
+
+// 같은 시간대에 여러 장소(예: 가야금 114호/113호)가 겹쳐 있으면 한 줄로 합쳐서 보여줘요.
+function dedupeBlocksByTime(blocks){
+  const order = [];
+  const map = new Map();
+  blocks.forEach(b=>{
+    if(!map.has(b.time)){
+      map.set(b.time, {time:b.time, activity:b.activity, professors:[...b.professors], places:[placeLabel(b)]});
+      order.push(b.time);
+    } else {
+      const merged = map.get(b.time);
+      b.professors.forEach(p=>{ if(!merged.professors.includes(p)) merged.professors.push(p); });
+      const pl = placeLabel(b);
+      if(!merged.places.includes(pl)) merged.places.push(pl);
+    }
+  });
+  return order.map(t=>map.get(t));
 }
 
 function renderModalSchedule(name){
   const wrap = document.getElementById('modalScheduleWrap');
   if(!wrap) return;
-  const blocks = SESSION_BLOCKS_729.filter(b=> b.students==='ALL' || (Array.isArray(b.students) && b.students.includes(name)));
+  const rawBlocks = SESSION_BLOCKS_729.filter(b=> b.students==='ALL' || (Array.isArray(b.students) && b.students.includes(name)));
+  const blocks = dedupeBlocksByTime(rawBlocks);
   if(!blocks.length){
     wrap.innerHTML = '<div class="notice-box">7/29 세부 스케줄 정보가 없어요.</div>';
     return;
   }
   wrap.innerHTML = blocks.map(b=>{
-    const meta = !b.building ? '' : (b.professors.length ? `${b.professors.join(', ')} / ${placeLabel(b)}` : placeLabel(b));
+    const place = b.places.filter(p=>p!=='-').join(' · ');
+    const meta = !place ? '' : (b.professors.length ? `${b.professors.join(', ')} / ${place}` : place);
     return `
       <div class="sched-row">
         <span class="sched-time">${b.time}</span>
