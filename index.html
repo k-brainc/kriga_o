@@ -342,6 +342,11 @@
   /* ===== Place console (장소별 스케줄 홈) — 건물 탭 → 호실 탭 → 시간표, 하나의 통합 카드 ===== */
   .place-console{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow-sm);}
   .pc-row{display:flex;gap:8px;overflow-x:auto;}
+  .pc-row-day{background:#0a1826;padding:11px 20px;}
+  .pc-btn-day{flex:none;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:transparent;
+    color:#9aa6b8;font-size:12.5px;font-weight:700;white-space:nowrap;transition:all .15s;}
+  .pc-btn-day:hover{border-color:rgba(255,255,255,.4);color:#fff;}
+  .pc-btn-day.active{background:#fff;color:var(--navy);border-color:#fff;}
   .pc-row-building{background:var(--navy);padding:13px 20px;}
   .pc-btn-building{flex:none;padding:9px 17px;border-radius:9px;border:none;background:rgba(255,255,255,.09);
     color:#cfd8e3;font-size:13px;font-weight:700;white-space:nowrap;transition:all .15s;}
@@ -395,8 +400,8 @@
   .fac-card,.p-card{gap:10px;}
 
   /* 건물/호실 탭, 필터, 운영정보 탭: 가로 스크롤 + 줄바꿈 방지 */
-  .pc-row-building,.pc-row-room{padding:10px 12px;}
-  .pc-btn-building,.pc-btn-room,.ops-tab,.filter-btn,.topbar-day-tab,.place-btn{white-space:nowrap;}
+  .pc-row-day,.pc-row-building,.pc-row-room{padding:10px 12px;}
+  .pc-btn-day,.pc-btn-building,.pc-btn-room,.ops-tab,.filter-btn,.topbar-day-tab,.place-btn{white-space:nowrap;}
   .ops-tabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;}
   .toolbar{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;}
   .toolbar input[type=text]{min-width:140px;}
@@ -496,11 +501,12 @@
     <!-- HOME (장소별 스케줄) -->
     <div class="view active" id="view-home">
       <div class="view-header">
-        <h1>장소별 스케줄 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;">(1회차 · 7/29 전용)</span></h1>
-        <p>건물 → 호실 순서로 탭을 고르면 그 장소의 7/29 시간표가 아래에 나와요. 시간대를 다시 누르면 참여 학생 명단이 펼쳐집니다.</p>
+        <h1>장소별 스케줄 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;">(1회차·2회차 세부 확정)</span></h1>
+        <p>날짜 → 건물 → 호실 순서로 탭을 고르면 그 장소의 시간표가 아래에 나와요. 시간대를 다시 누르면 참여 학생 명단이 펼쳐집니다.</p>
       </div>
 
       <div class="place-console">
+        <div class="pc-row pc-row-day" id="dayTabsHome"></div>
         <div class="pc-row pc-row-building" id="buildingTabs"></div>
         <div class="pc-row pc-row-room" id="roomTabs"></div>
         <div class="pc-row-map" id="mapRow" style="display:none;"></div>
@@ -556,7 +562,7 @@
     <!-- ATTENDANCE (오리엔테이션 · 교수회의) -->
     <div class="view" id="view-attendance">
       <div class="view-header">
-        <h1>오리엔테이션 · 교수회의 참석 명단 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;">(명단: xlsx · 참석여부: '26.7.27 계획안 기준)</span></h1>
+        <h1>오리엔테이션 · 교수회의 참석 명단 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;">(명단: xlsx · 참석여부: 8/14 갱신)</span></h1>
         <p>교강사·자문위원 20명의 참석 예정 명단이에요. O/X는 추진계획(안)에 기재된 참석 가능 여부이며, 실제 참석은 현장 서명으로 최종 확정돼요.</p>
       </div>
       <div class="ops-tabs" id="attendanceTabs"></div>
@@ -815,17 +821,17 @@ const LIFE_MENTORS = [
 const ATTENDANCE_ROSTER = [
   {no:1, role:'가야금 교수', org:'한국예술종합학교 전통예술원', name:'김형섭', orient:'O', meeting:['O','O','O','O']},
   {no:2, role:'가야금 강사', org:'한국예술영재교육원', name:'정진영', orient:'O', meeting:['O','O','O','O']},
-  {no:3, role:'거문고 교수', org:'한국예술종합학교 전통예술원', name:'유영주', orient:'O', meeting:['O','O','X','O']},
-  {no:4, role:'거문고 강사 · 융합창작', org:'국립국악원 민속악단', name:'이재하', orient:'X', meeting:['X','전통원 식사','O','O']},
+  {no:3, role:'거문고 교수', org:'한국예술종합학교 전통예술원', name:'유영주', orient:'O', meeting:['O','O','O','O']},
+  {no:4, role:'거문고 강사 · 융합창작', org:'국립국악원 민속악단', name:'이재하', orient:'X', meeting:['X','O','O','O']},
   {no:5, role:'해금 교수', org:'한국예술종합학교 전통예술원', name:'정수년', orient:'O', meeting:['O','O','O','O']},
-  {no:6, role:'해금 강사', org:'성남시립국악단', name:'김경흔', orient:'O', meeting:['O','O','X','O']},
+  {no:6, role:'해금 강사', org:'성남시립국악단', name:'김경흔', orient:'O', meeting:['O','O','O','O']},
   {no:7, role:'타악 교수', org:'한국예술종합학교 전통예술원', name:'류경화', orient:'O', meeting:['O','O','O','O']},
   {no:8, role:'타악 강사', org:'시흥시립전통예술단', name:'정초롱', orient:'O', meeting:['O','O','O','X']},
   {no:9, role:'타악 강사', org:'굿프렌즈', name:'박범태', orient:'X', meeting:['X','X','X','O']},
   {no:10, role:'판소리 교수', org:'이날치밴드', name:'안이호', orient:'O', meeting:['O','O','O','O']},
   {no:11, role:'판소리 강사', org:'한국예술종합학교', name:'김유진', orient:'X', meeting:['X','X','X','X']},
   {no:12, role:'판소리 강사', org:'한국예술종합학교', name:'이여진', orient:'X', meeting:['X','X','X','X']},
-  {no:13, role:'연희 교수', org:'시흥시립전통예술단', name:'김소민', orient:'O', meeting:['O','O','X','O']},
+  {no:13, role:'연희 교수', org:'시흥시립전통예술단', name:'김소민', orient:'O', meeting:['O','O','O','O']},
   {no:14, role:'연희 강사', org:'시흥시립전통예술단', name:'임채현', orient:'O', meeting:['O','X','O','O']},
   {no:15, role:'연희 강사', org:'남사당놀이보존회', name:'강동호', orient:'O', meeting:['O','X','X','X']},
   {no:16, role:'융합창작', org:'서울예대 음악학부', name:'강상구', orient:'O', meeting:['O','전통원 식사','O','O']},
@@ -834,7 +840,7 @@ const ATTENDANCE_ROSTER = [
   {no:19, role:'알렉산더 강사', org:'-', name:'임우성', orient:'O', meeting:['O','전통원 식사','X','X']},
   {no:20, role:'자문위원 및 특강', org:'-', name:'권혜근', orient:'O', meeting:['O','O','X','X']},
 ];
-// 위 orient/meeting 값은 '26.7.27 추진계획(안) 9쪽 표 기준으로, 아직 서명 확정 전 참고용 예정 표시예요.
+// 위 orient/meeting 값은 '260814 [전통예술분야] 교수회의 참석 일정' 기준으로, 아직 서명 확정 전 참고용 예정 표시예요.
 const ORIENTATION_COLUMNS = ['7/29(수)'];
 const MEETING_COLUMNS = ['7/29(수)','8/15(토)','8/17(월)','8/23(일)'];
 
@@ -877,12 +883,12 @@ function studentBand(s){
 const BAND_A_STUDENTS = STUDENTS.filter(s=>studentBand(s)==='A' && !EXCLUDED_FROM_729.includes(s.name)).map(s=>s.name);
 const BAND_B_STUDENTS = STUDENTS.filter(s=>studentBand(s)==='B' && !EXCLUDED_FROM_729.includes(s.name)).map(s=>s.name);
 
-const BUILDING_ORDER = ['예술정보관','전통예술원 본관','전통예술원 별관','음악실습장','무용연희실습장'];
+const BUILDING_ORDER = ['예술정보관','전통예술원 본관','전통예술원 별관','전통음악실습장','무용연희실습장'];
 const BUILDING_ROOMS = {
   '예술정보관': ['K-Cine'],
-  '전통예술원 본관': ['110호','112호','113호','114호','116호','133호','136호','141호','143호'],
+  '전통예술원 본관': ['110호','112호','113호','114호','116호','133호','134호','136호','141호','143호'],
   '전통예술원 별관': ['102호','103호','107호'],
-  '음악실습장': ['208호'],
+  '전통음악실습장': ['105호','204호','208호','209호'],
   '무용연희실습장': ['101호','102호','108호'],
 };
 function placeLabel(b){ return b.building ? `${b.building} ${b.room}` : '-'; }
@@ -951,6 +957,51 @@ const SESSION_BLOCKS_729 = [
   {time:'19:00–', activity:'귀가', building:null, room:null, professors:[], students:'ALL'},
 ];
 
+// 8/15(2회차) 통합수업(알렉산더·융합창작)은 학년(A/B)이 아니라 전공으로 묶여요.
+const FIELD_GROUP_A = [...fieldStudents('가야금'),...fieldStudents('해금'),...fieldStudents('판소리')]; // 14-16 알렉산더 → 16-18 융합창작
+const FIELD_GROUP_B = [...fieldStudents('거문고'),...fieldStudents('타악'),...fieldStudents('연희')];   // 14-16 융합창작 → 16-18 알렉산더
+
+const SESSION_BLOCKS_815 = [
+  {time:'09:00–13:00', activity:'전공실기 · 가야금', building:'전통예술원 본관', room:'114호', professors:['김형섭'], students: fieldStudents('가야금')},
+  {time:'09:00–13:00', activity:'전공실기 · 가야금', building:'전통예술원 본관', room:'113호', professors:['정진영'], students: fieldStudents('가야금')},
+  {time:'09:00–13:00', activity:'대기 및 연습 · 가야금', building:'전통음악실습장', room:'204호', professors:[], students: fieldStudents('가야금')},
+
+  {time:'09:00–13:00', activity:'전공실기 · 거문고', building:'전통예술원 본관', room:'110호', professors:['유영주'], students: fieldStudents('거문고')},
+  {time:'10:00–13:00', activity:'전공실기 · 거문고', building:'전통예술원 본관', room:'112호', professors:['이재하'], students: fieldStudents('거문고')},
+  {time:'09:00–13:00', activity:'대기 및 연습 · 거문고', building:'전통음악실습장', room:'208호', professors:[], students: fieldStudents('거문고')},
+
+  {time:'09:00–13:00', activity:'전공실기 · 해금', building:'전통예술원 본관', room:'141호', professors:['정수년'], students: fieldStudents('해금')},
+  {time:'09:00–13:00', activity:'전공실기 · 해금', building:'전통예술원 본관', room:'143호', professors:['김경흔'], students: fieldStudents('해금')},
+  {time:'09:00–13:00', activity:'대기 및 연습 · 해금', building:'전통음악실습장', room:'209호', professors:[], students: fieldStudents('해금')},
+
+  {time:'09:00–13:00', activity:'전공실기 · 타악', building:'전통예술원 본관', room:'136호', professors:['류경화','정초롱'], students: fieldStudents('타악')},
+  {time:'09:00–13:00', activity:'전공실기 · 판소리', building:'전통음악실습장', room:'105호', professors:['안이호','이여진'], students: fieldStudents('판소리')},
+
+  {time:'09:00–13:00', activity:'전공실기 · 연희 (김소민T · 조다원·이주환·이헌주·임태희)', building:'무용연희실습장', room:'101호', professors:['김소민'], students:['조다원','이주환','이헌주','임태희']},
+  {time:'09:00–13:00', activity:'전공실기 · 연희 (임채현T · 이서연·최수인·하늘)', building:'무용연희실습장', room:'102호', professors:['임채현'], students:['이서연','최수인','하늘']},
+  {time:'09:00–13:00', activity:'전공실기 · 연희 (강동호T · 김도영·박별)', building:'무용연희실습장', room:'108호', professors:['강동호'], students:['김도영','박별']},
+
+  {time:'13:00–14:00', activity:'점심 (가야금·거문고·해금)', building:'전통예술원 별관', room:'102호', professors:[], students:[...fieldStudents('가야금'),...fieldStudents('거문고'),...fieldStudents('해금')]},
+  {time:'13:00–14:00', activity:'점심 (타악·판소리·연희)', building:'전통예술원 별관', room:'103호', professors:[], students:[...fieldStudents('타악'),...fieldStudents('판소리'),...fieldStudents('연희')]},
+
+  {time:'14:00–16:00', activity:'알렉산더테크닉 (가야금·해금·판소리)', building:'전통예술원 본관', room:'112호', professors:['이승아'], students: FIELD_GROUP_A},
+  {time:'14:00–16:00', activity:'융합창작 (거문고·타악·연희)', building:'전통예술원 본관', room:'133호', professors:['강상구'], students: FIELD_GROUP_B},
+  {time:'14:00–16:00', activity:'융합창작 (거문고·타악·연희)', building:'전통예술원 본관', room:'134호', professors:['이재하','곽상준'], students: FIELD_GROUP_B},
+
+  {time:'16:00–18:00', activity:'알렉산더테크닉 (거문고·타악·연희)', building:'전통예술원 본관', room:'112호', professors:['이승아'], students: FIELD_GROUP_B},
+  {time:'16:00–18:00', activity:'융합창작 (가야금·해금·판소리)', building:'전통예술원 본관', room:'133호', professors:['강상구'], students: FIELD_GROUP_A},
+  {time:'16:00–18:00', activity:'융합창작 (가야금·해금·판소리)', building:'전통예술원 본관', room:'134호', professors:['이재하','곽상준'], students: FIELD_GROUP_A},
+
+  {time:'18:00–19:00', activity:'성장노트 작성 (가야금·거문고·해금)', building:'전통예술원 별관', room:'102호', professors:[], students:[...fieldStudents('가야금'),...fieldStudents('거문고'),...fieldStudents('해금')]},
+  {time:'18:00–19:00', activity:'성장노트 작성 (타악·판소리·연희)', building:'전통예술원 별관', room:'103호', professors:[], students:[...fieldStudents('타악'),...fieldStudents('판소리'),...fieldStudents('연희')]},
+];
+
+// 날짜별 세부 시간표 모음 — 홈 화면·학생/교수 모달에서 이 맵으로 날짜를 선택해요.
+const SESSION_DAYS = [
+  {date:'2026-07-29', label:'1회차 · 7/29', blocks: SESSION_BLOCKS_729},
+  {date:'2026-08-15', label:'2회차 · 8/15', blocks: SESSION_BLOCKS_815},
+];
+
 
 
 const FACULTY_PHOTOS = {
@@ -981,7 +1032,7 @@ const SCHEDULE_HOURS = [9,10,11,12,13,14,15,16,17,18];
    STATE
 ===================================================================== */
 let state = { navMode:'full', sFieldFilter:'all', scheduleDayIdx:0, opsTab:0,
-  detailPlaceKey:null, detailPlaceExpandedIdx:null, detailBuilding:null,
+  detailDayIdx:0, detailPlaceKey:null, detailPlaceExpandedIdx:null, detailBuilding:null,
   timeMode:'live', previewDayIdx:0, previewMinutes:600, attendanceTab:0 };
 
 function measureTopbarHeight(){
@@ -1332,7 +1383,7 @@ function renderModalTabs(s){
   } else {
     content.innerHTML = `
       <div class="modal-section">
-        <h4>7월 29일(1회차) 스케줄</h4>
+        <h4>세부 스케줄</h4>
         <div id="modalScheduleWrap"></div>
       </div>
     `;
@@ -1361,21 +1412,22 @@ function dedupeBlocksByTime(blocks){
 function renderModalSchedule(name){
   const wrap = document.getElementById('modalScheduleWrap');
   if(!wrap) return;
-  const rawBlocks = SESSION_BLOCKS_729.filter(b=> b.students==='ALL' || (Array.isArray(b.students) && b.students.includes(name)));
-  const blocks = dedupeBlocksByTime(rawBlocks);
-  if(!blocks.length){
-    wrap.innerHTML = '<div class="notice-box">7/29 세부 스케줄 정보가 없어요.</div>';
-    return;
-  }
-  wrap.innerHTML = blocks.map(b=>{
-    const place = b.places.filter(p=>p!=='-').join(' · ');
-    const meta = !place ? '' : (b.professors.length ? `${b.professors.join(', ')} / ${place}` : place);
-    return `
-      <div class="sched-row">
-        <span class="sched-time">${b.time}</span>
-        <span class="sched-text"><span class="sched-title">${b.activity}</span>${meta?`<span class="sched-meta">${meta}</span>`:''}</span>
-      </div>`;
+  const sections = SESSION_DAYS.map(day=>{
+    const rawBlocks = day.blocks.filter(b=> b.students==='ALL' || (Array.isArray(b.students) && b.students.includes(name)));
+    const blocks = dedupeBlocksByTime(rawBlocks);
+    if(!blocks.length) return '';
+    const rows = blocks.map(b=>{
+      const place = b.places.filter(p=>p!=='-').join(' · ');
+      const meta = !place ? '' : (b.professors.length ? `${b.professors.join(', ')} / ${place}` : place);
+      return `
+        <div class="sched-row">
+          <span class="sched-time">${b.time}</span>
+          <span class="sched-text"><span class="sched-title">${b.activity}</span>${meta?`<span class="sched-meta">${meta}</span>`:''}</span>
+        </div>`;
+    }).join('');
+    return `<div class="ops-subgroup"><h4>${day.label}</h4>${rows}</div>`;
   }).join('');
+  wrap.innerHTML = sections || '<div class="notice-box">세부 스케줄 정보가 없어요.</div>';
 }
 
 function renderFaculty(){
@@ -1448,7 +1500,7 @@ function openFacultyModal(name){
       <div class="info-row"><div class="v" style="font-family:var(--mono);">${f.phone}${f.email? ' · '+f.email:''}</div></div>
     </div>
     <div class="modal-section">
-      <h4>7월 29일(1회차) 개인 시간표</h4>
+      <h4>개인 시간표</h4>
       ${renderProfSchedule729(f.name)}
     </div>
   `;
@@ -1623,8 +1675,8 @@ function attendanceTable(desc, columns, kind){
     </table></div>`;
 }
 const ATTENDANCE_TABS = [
-  {label:'오리엔테이션', kind:'orient', desc:'7/29(수) 오리엔테이션 참석 예정 명단이에요. O/X는 \'26.7.27 추진계획(안) 기준 참고용 예정 표시로, 실제 참석은 현장 서명으로 최종 확정돼요.', columns:ORIENTATION_COLUMNS},
-  {label:'교수회의', kind:'meeting', desc:'7/29·8/15·8/17·8/23 회차별 교수회의(교강사 간담회) 참석 예정 명단이에요. O/X는 \'26.7.27 추진계획(안) 기준 참고용 예정 표시로, 실제 참석은 현장 서명으로 최종 확정돼요.', columns:MEETING_COLUMNS},
+  {label:'오리엔테이션', kind:'orient', desc:'7/29(수) 오리엔테이션 참석 예정 명단이에요. O/X는 \'260814 교수회의 참석 일정\' 기준 참고용 예정 표시로, 실제 참석은 현장 서명으로 최종 확정돼요.', columns:ORIENTATION_COLUMNS},
+  {label:'교수회의', kind:'meeting', desc:'7/29·8/15·8/17·8/23 회차별 교수회의(교강사 간담회) 참석 예정 명단이에요. O/X는 \'260814 교수회의 참석 일정\' 기준 참고용 예정 표시로, 실제 참석은 현장 서명으로 최종 확정돼요.', columns:MEETING_COLUMNS},
 ];
 function renderAttendanceView(){
   const tabsWrap = document.getElementById('attendanceTabs');
@@ -1656,12 +1708,13 @@ function renderOps(){
 }
 
 /* =====================================================================
-   HOME VIEW — 장소별 스케줄 (1회차 · 7/29 전용)
-   건물 → 장소 선택 → 시간대별 목록(교수) → 클릭 시 참여 학생 표시(아코디언)
+   HOME VIEW — 장소별 스케줄 (날짜별 세부 확정: 1회차 7/29 · 2회차 8/15)
+   날짜 → 건물 → 장소 선택 → 시간대별 목록(교수) → 클릭 시 참여 학생 표시(아코디언)
 ===================================================================== */
+function currentDayBlocks(){ return SESSION_DAYS[state.detailDayIdx].blocks; }
 function allProfessorsIn729(){
   const set = new Set();
-  SESSION_BLOCKS_729.forEach(b=> b.professors.forEach(p=>set.add(p)));
+  SESSION_DAYS.forEach(day=> day.blocks.forEach(b=> b.professors.forEach(p=>set.add(p))));
   return set;
 }
 function professorHasSession729(name){ return allProfessorsIn729().has(name); }
@@ -1674,21 +1727,21 @@ function studentsLabelOf(b){
 
 /* ---------- 장소별 (홈 화면) ---------- */
 function activeBuildings(){
-  const present = new Set(SESSION_BLOCKS_729.filter(b=>b.building).map(roomKeyOf));
+  const present = new Set(currentDayBlocks().filter(b=>b.building).map(roomKeyOf));
   return BUILDING_ORDER.filter(building=>
     (BUILDING_ROOMS[building]||[]).some(room=> present.has(`${building}||${room}`))
   );
 }
 function activeRoomsOf(building){
-  const present = new Set(SESSION_BLOCKS_729.filter(b=>b.building).map(roomKeyOf));
+  const present = new Set(currentDayBlocks().filter(b=>b.building).map(roomKeyOf));
   return (BUILDING_ROOMS[building]||[]).filter(room=> present.has(`${building}||${room}`));
 }
 function renderPlaceDetail(){
   const key = state.detailPlaceKey;
-  if(!key) return `<div class="notice-box">위에서 건물과 호실을 고르면 7/29(1회차) 시간표가 표시돼요.</div>`;
+  if(!key) return `<div class="notice-box">위에서 건물과 호실을 고르면 시간표가 표시돼요.</div>`;
   const [building, room] = key.split('||');
-  const blocks = SESSION_BLOCKS_729.filter(b=>b.building===building && b.room===room);
-  if(!blocks.length) return `<div class="notice-box">7/29 시간표에 이 장소 사용 내역이 없어요.</div>`;
+  const blocks = currentDayBlocks().filter(b=>b.building===building && b.room===room);
+  if(!blocks.length) return `<div class="notice-box">이 날짜 시간표에 이 장소 사용 내역이 없어요.</div>`;
   const rows = blocks.map((b,i)=>{
     const open = state.detailPlaceExpandedIdx===i;
     const profLabel = b.professors.length ? b.professors.join(', ') : '지정 교수 없음';
@@ -1747,6 +1800,22 @@ function renderMapRow(){
 }
 
 function renderHome(){
+  const dayWrap = document.getElementById('dayTabsHome');
+  dayWrap.innerHTML = SESSION_DAYS.map((day,i)=>
+    `<button class="pc-btn-day ${state.detailDayIdx===i?'active':''}" data-idx="${i}">${day.label}</button>`
+  ).join('');
+  dayWrap.querySelectorAll('.pc-btn-day').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const idx = Number(btn.getAttribute('data-idx'));
+      if(idx === state.detailDayIdx) return;
+      state.detailDayIdx = idx;
+      state.detailBuilding = null;
+      state.detailPlaceKey = null;
+      state.detailPlaceExpandedIdx = null;
+      renderHome();
+    });
+  });
+
   const buildings = activeBuildings();
   const buildingWrap = document.getElementById('buildingTabs');
   const roomWrap = document.getElementById('roomTabs');
@@ -1802,17 +1871,20 @@ function renderHome(){
 
 /* ---------- 교수님 개인 시간표 (교수진 정보 모달에서 사용) ---------- */
 function renderProfSchedule729(name){
-  const blocks = SESSION_BLOCKS_729.filter(b=>b.professors.includes(name));
-  if(!blocks.length) return `<div class="notice-box">7/29(1회차) 배정 정보가 없어요.</div>`;
-  const rows = blocks.map(b=>`
-    <tr><td class="center">${b.time}</td><td>${b.activity}</td><td>${placeLabel(b)}</td><td>${studentsLabelOf(b)}</td></tr>`).join('');
-  const notes = blocks.filter(b=>b.note).map(b=>`<div class="alert-box"><b>${b.time} ${b.activity}</b><br>${b.note}</div>`).join('');
-  return `
-    <div class="table-wrap"><table class="mini-table">
-      <thead><tr><th>시간</th><th>활동</th><th>장소</th><th>참여 학생</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table></div>
-    ${notes ? `<div style="margin-top:12px;">${notes}</div>` : ''}`;
+  const sections = SESSION_DAYS.map(day=>{
+    const blocks = day.blocks.filter(b=>b.professors.includes(name));
+    if(!blocks.length) return '';
+    const rows = blocks.map(b=>`
+      <tr><td class="center">${b.time}</td><td>${b.activity}</td><td>${placeLabel(b)}</td><td>${studentsLabelOf(b)}</td></tr>`).join('');
+    return `
+      <div class="ops-subgroup"><h4>${day.label}</h4>
+        <div class="table-wrap"><table class="mini-table">
+          <thead><tr><th>시간</th><th>활동</th><th>장소</th><th>참여 학생</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+      </div>`;
+  }).join('');
+  return sections || `<div class="notice-box">배정된 세부 일정이 없어요.</div>`;
 }
 
 async function init(){
