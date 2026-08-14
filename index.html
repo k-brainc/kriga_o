@@ -1391,6 +1391,21 @@ function renderModalTabs(s){
   }
 }
 
+// 여러 시간에 걸친 블록(예: 09:00–13:00)을 1시간 단위로 쪼개요. "19:00–"처럼 끝 시간이 없으면 그대로 둬요.
+function splitBlockHourly(b){
+  const parts = b.time.split('–');
+  if(parts.length !== 2 || !parts[0] || !parts[1]) return [b];
+  const startM = hhmmToMins(parts[0]);
+  const endM = hhmmToMins(parts[1]);
+  if(!(endM > startM + 60)) return [b];
+  const out = [];
+  for(let t=startM; t<endM; t+=60){
+    const segEnd = Math.min(t+60, endM);
+    out.push({...b, time: `${minsToHHMM(t)}–${minsToHHMM(segEnd)}`});
+  }
+  return out;
+}
+
 // 같은 시간대에 여러 장소(예: 가야금 114호/113호)가 겹쳐 있으면 한 줄로 합쳐서 보여줘요.
 function dedupeBlocksByTime(blocks){
   const order = [];
@@ -1414,7 +1429,8 @@ function renderModalSchedule(name){
   if(!wrap) return;
   const sections = SESSION_DAYS.map(day=>{
     const rawBlocks = day.blocks.filter(b=> b.students==='ALL' || (Array.isArray(b.students) && b.students.includes(name)));
-    const blocks = dedupeBlocksByTime(rawBlocks);
+    const hourlyBlocks = rawBlocks.flatMap(splitBlockHourly);
+    const blocks = dedupeBlocksByTime(hourlyBlocks);
     if(!blocks.length) return '';
     const rows = blocks.map(b=>{
       const place = b.places.filter(p=>p!=='-').join(' · ');
