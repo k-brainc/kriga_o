@@ -479,9 +479,10 @@
     </button>
 
     <div class="nav" id="navList">
-      <button data-view="home" class="active" title="홈"><span class="ico">◈</span><span class="nav-label">홈</span></button>
+      <button data-view="students" class="active" title="홈"><span class="ico">◈</span><span class="nav-label">홈</span></button>
+      <button data-view="places" title="장소별 스케줄"><span class="ico">📍</span><span class="nav-label">장소별 스케줄</span></button>
       <button data-view="schedule" title="전체 일정"><span class="ico">▤</span><span class="nav-label">전체 일정</span></button>
-      <button data-view="students" title="학생 정보"><span class="ico">◍</span><span class="nav-label">학생 정보</span></button>
+      <button data-view="students" class="active" title="학생 정보"><span class="ico">◍</span><span class="nav-label">학생 정보</span></button>
       <button data-view="faculty" title="교수진 정보"><span class="ico">✦</span><span class="nav-label">교수진 정보</span></button>
       <button data-view="mentors" title="생활멘토"><span class="ico">♥</span><span class="nav-label">생활멘토</span></button>
       <button data-view="attendance" title="오리엔테이션·교수회의"><span class="ico">🗓</span><span class="nav-label">오리엔테이션·교수회의</span></button>
@@ -498,8 +499,8 @@
   <!-- MAIN -->
   <div class="main">
 
-    <!-- HOME (장소별 스케줄) -->
-    <div class="view active" id="view-home">
+    <!-- PLACES (장소별 스케줄) -->
+    <div class="view" id="view-places">
       <div class="view-header">
         <h1>장소별 스케줄 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;">(1회차·2회차 세부 확정)</span></h1>
         <p>날짜 → 건물 → 호실 순서로 탭을 고르면 그 장소의 시간표가 아래에 나와요. 시간대를 다시 누르면 참여 학생 명단이 펼쳐집니다.</p>
@@ -525,7 +526,7 @@
     </div>
 
     <!-- STUDENTS -->
-    <div class="view" id="view-students">
+    <div class="view active" id="view-students">
       <div class="view-header">
         <h1>학생 정보 <span style="font-weight:400;color:var(--ink-soft);font-size:14px;" id="sCount"></span></h1>
         <p>이름·학교로 검색하거나 세부전공으로 필터링할 수 있어요. 카드를 클릭하면 상세 정보가 열립니다.</p>
@@ -1116,7 +1117,7 @@ function renderNowStrip(){
       ${dayIdx>=0 && SCHEDULE[dayIdx].date==='2026-07-29' ? `<button type="button" class="ns-goto" id="nsGotoHome">장소별로 보기 →</button>` : ''}
     `;
     const gotoBtn = document.getElementById('nsGotoHome');
-    if(gotoBtn) gotoBtn.addEventListener('click', ()=> goToView('home'));
+    if(gotoBtn) gotoBtn.addEventListener('click', ()=> goToView('places'));
   } else if(dayIdx >= 0){
     nowCard.innerHTML = `
       <div class="eyebrow"><span class="live-dot" style="background:#8b96ab;"></span>진행 중인 세션 없음</div>
@@ -1207,7 +1208,7 @@ function goToView(view){
   });
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
-  if(view==='home') renderHome();
+  if(view==='places') renderPlaces();
   if(view==='schedule') renderScheduleView();
   if(view==='students') renderStudents();
   if(view==='faculty') renderFaculty();
@@ -1837,12 +1838,12 @@ function renderMapRow(){
     btn.addEventListener('click', ()=>{
       state.detailPlaceKey = `${building}||${btn.getAttribute('data-room')}`;
       state.detailPlaceExpandedIdx = null;
-      renderHome();
+      renderPlaces();
     });
   });
 }
 
-function renderHome(){
+function renderPlaces(){
   const dayWrap = document.getElementById('dayTabsHome');
   dayWrap.innerHTML = SESSION_DAYS.map((day,i)=>
     `<button class="pc-btn-day ${state.detailDayIdx===i?'active':''}" data-idx="${i}">${day.label}</button>`
@@ -1855,7 +1856,7 @@ function renderHome(){
       state.detailBuilding = null;
       state.detailPlaceKey = null;
       state.detailPlaceExpandedIdx = null;
-      renderHome();
+      renderPlaces();
     });
   });
 
@@ -1880,7 +1881,7 @@ function renderHome(){
       state.detailBuilding = btn.getAttribute('data-building');
       state.detailPlaceKey = null;
       state.detailPlaceExpandedIdx = null;
-      renderHome();
+      renderPlaces();
     });
   });
 
@@ -1896,7 +1897,7 @@ function renderHome(){
     btn.addEventListener('click', ()=>{
       state.detailPlaceKey = btn.getAttribute('data-key');
       state.detailPlaceExpandedIdx = null;
-      renderHome();
+      renderPlaces();
     });
   });
 
@@ -1907,7 +1908,7 @@ function renderHome(){
     btn.addEventListener('click', ()=>{
       const idx = Number(btn.getAttribute('data-idx'));
       state.detailPlaceExpandedIdx = state.detailPlaceExpandedIdx===idx ? null : idx;
-      renderHome();
+      renderPlaces();
     });
   });
 }
@@ -1936,7 +1937,7 @@ async function init(){
   renderNowStrip();
   measureTopbarHeight();
   window.addEventListener('resize', measureTopbarHeight);
-  renderHome();
+  renderPlaces();
   renderScheduleView();
   renderStudents();
   renderFaculty();
