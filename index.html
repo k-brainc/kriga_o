@@ -769,7 +769,7 @@ const VENUE_ROOMS = [
     {room:'107호', name:'강의실', use:'학생 식사(휴식)'},
     {room:'302호', name:'관현악실(악기실)', use:'타악 전공 수업'},
   ]},
-  {zone:'전통음악실습장', rows:[
+  {zone:'전통예술원 별관', rows:[
     {room:'102호', name:'강의실', use:'운영본부'},
     {room:'105호', name:'성악대연습실', use:'채수정T 수업', note:'사용 불가 — 사전 확인 필요'},
     {room:'201~203호', name:'연습실', use:'연습실 / 레슨실'},
@@ -883,12 +883,11 @@ function studentBand(s){
 const BAND_A_STUDENTS = STUDENTS.filter(s=>studentBand(s)==='A' && !EXCLUDED_FROM_729.includes(s.name)).map(s=>s.name);
 const BAND_B_STUDENTS = STUDENTS.filter(s=>studentBand(s)==='B' && !EXCLUDED_FROM_729.includes(s.name)).map(s=>s.name);
 
-const BUILDING_ORDER = ['예술정보관','전통예술원 본관','전통예술원 별관','전통음악실습장','무용연희실습장'];
+const BUILDING_ORDER = ['예술정보관','전통예술원 본관','전통예술원 별관','무용연희실습장'];
 const BUILDING_ROOMS = {
   '예술정보관': ['K-Cine'],
   '전통예술원 본관': ['110호','112호','113호','114호','116호','133호','134호','136호','141호','143호'],
-  '전통예술원 별관': ['102호','103호','107호'],
-  '전통음악실습장': ['105호','204호','208호','209호'],
+  '전통예술원 별관': ['102호','103호','105호','107호','204호','208호','209호'],
   '무용연희실습장': ['101호','102호','108호'],
 };
 function placeLabel(b){ return b.building ? `${b.building} ${b.room}` : '-'; }
@@ -964,18 +963,18 @@ const FIELD_GROUP_B = [...fieldStudents('거문고'),...fieldStudents('타악'),
 const SESSION_BLOCKS_815 = [
   {time:'09:00–13:00', activity:'전공실기 · 가야금', building:'전통예술원 본관', room:'114호', professors:['김형섭'], students: fieldStudents('가야금')},
   {time:'09:00–13:00', activity:'전공실기 · 가야금', building:'전통예술원 본관', room:'113호', professors:['정진영'], students: fieldStudents('가야금')},
-  {time:'09:00–13:00', activity:'대기 및 연습 · 가야금', building:'전통음악실습장', room:'204호', professors:[], students: fieldStudents('가야금')},
+  {time:'09:00–13:00', activity:'대기 및 연습 · 가야금', building:'전통예술원 별관', room:'204호', professors:[], students: fieldStudents('가야금')},
 
   {time:'09:00–13:00', activity:'전공실기 · 거문고', building:'전통예술원 본관', room:'110호', professors:['유영주'], students: fieldStudents('거문고')},
   {time:'10:00–13:00', activity:'전공실기 · 거문고', building:'전통예술원 본관', room:'112호', professors:['이재하'], students: fieldStudents('거문고')},
-  {time:'09:00–13:00', activity:'대기 및 연습 · 거문고', building:'전통음악실습장', room:'208호', professors:[], students: fieldStudents('거문고')},
+  {time:'09:00–13:00', activity:'대기 및 연습 · 거문고', building:'전통예술원 별관', room:'208호', professors:[], students: fieldStudents('거문고')},
 
   {time:'09:00–13:00', activity:'전공실기 · 해금', building:'전통예술원 본관', room:'141호', professors:['정수년'], students: fieldStudents('해금')},
   {time:'09:00–13:00', activity:'전공실기 · 해금', building:'전통예술원 본관', room:'143호', professors:['김경흔'], students: fieldStudents('해금')},
-  {time:'09:00–13:00', activity:'대기 및 연습 · 해금', building:'전통음악실습장', room:'209호', professors:[], students: fieldStudents('해금')},
+  {time:'09:00–13:00', activity:'대기 및 연습 · 해금', building:'전통예술원 별관', room:'209호', professors:[], students: fieldStudents('해금')},
 
   {time:'09:00–13:00', activity:'전공실기 · 타악', building:'전통예술원 본관', room:'136호', professors:['류경화','정초롱'], students: fieldStudents('타악')},
-  {time:'09:00–13:00', activity:'전공실기 · 판소리', building:'전통음악실습장', room:'105호', professors:['안이호','이여진'], students: fieldStudents('판소리')},
+  {time:'09:00–13:00', activity:'전공실기 · 판소리', building:'전통예술원 별관', room:'105호', professors:['안이호','이여진'], students: fieldStudents('판소리')},
 
   {time:'09:00–13:00', activity:'전공실기 · 연희 (김소민T · 조다원·이주환·이헌주·임태희)', building:'무용연희실습장', room:'101호', professors:['김소민'], students:['조다원','이주환','이헌주','임태희']},
   {time:'09:00–13:00', activity:'전공실기 · 연희 (임채현T · 이서연·최수인·하늘)', building:'무용연희실습장', room:'102호', professors:['임채현'], students:['이서연','최수인','하늘']},
@@ -1052,7 +1051,8 @@ function hhmmToMins(s){ const [h,m] = s.split(':').map(Number); return h*60+m; }
 function getEffectiveDateTime(){
   if(state.timeMode === 'live'){
     const now = new Date();
-    return { dateStr: now.toISOString().slice(0,10), minutes: now.getHours()*60+now.getMinutes() };
+    const dateStr = `${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`;
+    return { dateStr, minutes: now.getHours()*60+now.getMinutes() };
   }
   return { dateStr: SCHEDULE[state.previewDayIdx].date, minutes: state.previewMinutes };
 }
@@ -1161,7 +1161,7 @@ document.getElementById('modePreview').addEventListener('click', ()=>{
   document.getElementById('modeLive').classList.remove('on');
   document.getElementById('timeSlider').style.display = 'inline-block';
   const now = new Date();
-  const idx = findDayIndexByDate(now.toISOString().slice(0,10));
+  const idx = findDayIndexByDate(`${now.getFullYear()}-${pad2(now.getMonth()+1)}-${pad2(now.getDate())}`);
   if(idx>=0){
     state.previewDayIdx = idx;
     state.previewMinutes = now.getHours()*60+now.getMinutes();
@@ -1332,6 +1332,7 @@ function openStudentModal(name){
   document.getElementById('modalTitle').textContent = s.name;
   document.getElementById('modalSub').textContent = `${FIELD_ICON[s.field]||''} ${s.field} · ${s.school} ${s.grade?s.grade+'학년':''}`;
   modalActiveTab = 'schedule';
+  modalScheduleDayIdx = nearestSessionDayIdx();
   document.getElementById('modalBody').innerHTML = `
     <div class="ops-tabs" id="modalTabs" style="margin-bottom:16px;"></div>
     <div id="modalTabContent"></div>
@@ -1340,7 +1341,20 @@ function openStudentModal(name){
   document.getElementById('overlay').classList.add('show');
 }
 
+// SESSION_DAYS 중 오늘 날짜와 가장 가까운 날짜의 인덱스를 찾아요.
+function nearestSessionDayIdx(){
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  let bestIdx = 0, bestDiff = Infinity;
+  SESSION_DAYS.forEach((d,i)=>{
+    const diff = Math.abs(new Date(d.date+'T00:00:00') - today);
+    if(diff < bestDiff){ bestDiff = diff; bestIdx = i; }
+  });
+  return bestIdx;
+}
+
 let modalActiveTab = 'schedule';
+let modalScheduleDayIdx = 0;
 function renderModalTabs(s){
   const tabsWrap = document.getElementById('modalTabs');
   tabsWrap.innerHTML = `
@@ -1384,6 +1398,7 @@ function renderModalTabs(s){
     content.innerHTML = `
       <div class="modal-section">
         <h4>세부 스케줄</h4>
+        <div class="ops-tabs" id="modalScheduleDayTabs" style="margin-bottom:12px;"></div>
         <div id="modalScheduleWrap"></div>
       </div>
     `;
@@ -1425,25 +1440,37 @@ function dedupeBlocksByTime(blocks){
 }
 
 function renderModalSchedule(name){
+  const tabsWrap = document.getElementById('modalScheduleDayTabs');
   const wrap = document.getElementById('modalScheduleWrap');
-  if(!wrap) return;
-  const sections = SESSION_DAYS.map(day=>{
-    const rawBlocks = day.blocks.filter(b=> b.students==='ALL' || (Array.isArray(b.students) && b.students.includes(name)));
-    const hourlyBlocks = rawBlocks.flatMap(splitBlockHourly);
-    const blocks = dedupeBlocksByTime(hourlyBlocks);
-    if(!blocks.length) return '';
-    const rows = blocks.map(b=>{
-      const place = b.places.filter(p=>p!=='-').join(' · ');
-      const meta = !place ? '' : (b.professors.length ? `${b.professors.join(', ')} / ${place}` : place);
-      return `
-        <div class="sched-row">
-          <span class="sched-time">${b.time}</span>
-          <span class="sched-text"><span class="sched-title">${b.activity}</span>${meta?`<span class="sched-meta">${meta}</span>`:''}</span>
-        </div>`;
-    }).join('');
-    return `<div class="ops-subgroup"><h4>${day.label}</h4>${rows}</div>`;
+  if(!wrap || !tabsWrap) return;
+
+  tabsWrap.innerHTML = SESSION_DAYS.map((day,i)=>
+    `<button class="ops-tab ${modalScheduleDayIdx===i?'active':''}" data-idx="${i}">${day.label}</button>`
+  ).join('');
+  tabsWrap.querySelectorAll('.ops-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      modalScheduleDayIdx = Number(btn.getAttribute('data-idx'));
+      renderModalSchedule(name);
+    });
+  });
+
+  const day = SESSION_DAYS[modalScheduleDayIdx];
+  const rawBlocks = day.blocks.filter(b=> b.students==='ALL' || (Array.isArray(b.students) && b.students.includes(name)));
+  const hourlyBlocks = rawBlocks.flatMap(splitBlockHourly);
+  const blocks = dedupeBlocksByTime(hourlyBlocks);
+  if(!blocks.length){
+    wrap.innerHTML = '<div class="notice-box">이 날짜의 세부 스케줄 정보가 없어요.</div>';
+    return;
+  }
+  wrap.innerHTML = blocks.map(b=>{
+    const place = b.places.filter(p=>p!=='-').join(' · ');
+    const meta = !place ? '' : (b.professors.length ? `${b.professors.join(', ')} / ${place}` : place);
+    return `
+      <div class="sched-row">
+        <span class="sched-time">${b.time}</span>
+        <span class="sched-text"><span class="sched-title">${b.activity}</span>${meta?`<span class="sched-meta">${meta}</span>`:''}</span>
+      </div>`;
   }).join('');
-  wrap.innerHTML = sections || '<div class="notice-box">세부 스케줄 정보가 없어요.</div>';
 }
 
 function renderFaculty(){
@@ -1571,7 +1598,7 @@ function opsTabContent_venue(){
   return `
     <div class="ops-section">
       <h3>수업 장소 배정표</h3>
-      <p class="ops-desc">본관·연수동(별관)·전통음악실습장·무용연희실습장 구역별 호실 용도예요. 노란 태그는 사용 제약이 있어 사전 확인이 필요한 곳입니다.</p>
+      <p class="ops-desc">본관·연수동(별관)·전통예술원 별관·무용연희실습장 구역별 호실 용도예요. 노란 태그는 사용 제약이 있어 사전 확인이 필요한 곳입니다.</p>
       ${groups}
     </div>`;
 }
