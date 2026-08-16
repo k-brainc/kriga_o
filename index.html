@@ -997,9 +997,51 @@ const SESSION_BLOCKS_815 = [
 ];
 
 // 날짜별 세부 시간표 모음 — 홈 화면·학생/교수 모달에서 이 맵으로 날짜를 선택해요.
+// 8/17(3회차) 오후 통합수업 팀 구성 — 실제 교차편성 로테이션 팀 명단 기준
+const TEAM_Q_817 = ['장지혜','김여완','반혜민','이신우','김도영','이헌주','김나연','김규리','강나윤','김시현',
+  '이주환','박별','임건우','고윤서','이성문','최정안','임태희','이서연','김보빈','서현지','하늘','최수인'];
+const TEAM_P_817 = ['김다윤','김다엘','이연우','장서영','김영우','장승주','변지환','정다인','장세린','김재희',
+  '이선형','조다원','김민진','이시연','윤하원','장인하','송예린','김유현','박하임','권운','이슬아','최아라','조여원','박예준'];
+
+const SESSION_BLOCKS_817 = [
+  {time:'09:00–13:00', activity:'전공실기 · 가야금', building:'전통예술원 본관', room:'114호', professors:['김형섭'], students: fieldStudents('가야금')},
+  {time:'09:00–13:00', activity:'전공실기 · 가야금', building:'전통예술원 본관', room:'113호', professors:['정진영'], students: fieldStudents('가야금')},
+  {time:'09:00–13:00', activity:'대기 및 연습 · 가야금', building:'전통예술원 별관', room:'204호', professors:[], students: fieldStudents('가야금')},
+
+  {time:'09:00–13:00', activity:'전공실기 · 거문고', building:'전통예술원 본관', room:'110호', professors:['유영주'], students: fieldStudents('거문고')},
+  {time:'10:00–13:00', activity:'전공실기 · 거문고', building:'전통예술원 본관', room:'112호', professors:['이재하'], students: fieldStudents('거문고')},
+  {time:'09:00–13:00', activity:'대기 및 연습 · 거문고', building:'전통예술원 별관', room:'208호', professors:[], students: fieldStudents('거문고')},
+
+  {time:'09:00–13:00', activity:'전공실기 · 해금', building:'전통예술원 본관', room:'141호', professors:['정수년'], students: fieldStudents('해금')},
+  {time:'09:00–13:00', activity:'전공실기 · 해금', building:'전통예술원 본관', room:'143호', professors:['김경흔'], students: fieldStudents('해금')},
+  {time:'09:00–13:00', activity:'대기 및 연습 · 해금', building:'전통예술원 별관', room:'209호', professors:[], students: fieldStudents('해금')},
+
+  {time:'09:00–13:00', activity:'전공실기 · 타악', building:'전통예술원 본관', room:'136호', professors:['류경화','박범태'], students: fieldStudents('타악')},
+  {time:'09:00–13:00', activity:'전공실기 · 판소리', building:'전통예술원 별관', room:'105호', professors:['안이호','이여진'], students: fieldStudents('판소리')},
+
+  {time:'09:00–13:00', activity:'전공실기 · 연희', building:'무용연희실습장', room:'101호', professors:['김소민'], students: fieldStudents('연희')},
+  {time:'09:00–13:00', activity:'전공실기 · 연희', building:'무용연희실습장', room:'102호', professors:['임채현'], students: fieldStudents('연희')},
+  {time:'09:00–13:00', activity:'전공실기 · 연희', building:'무용연희실습장', room:'108호', professors:['강동호'], students: fieldStudents('연희')},
+
+  {time:'13:00–14:00', activity:'점심 (가야금·거문고·해금)', building:'전통예술원 별관', room:'102호', professors:[], students:[...fieldStudents('가야금'),...fieldStudents('거문고'),...fieldStudents('해금')]},
+  {time:'13:00–14:00', activity:'점심 (타악·판소리·연희)', building:'전통예술원 별관', room:'103호', professors:[], students:[...fieldStudents('타악'),...fieldStudents('판소리'),...fieldStudents('연희')]},
+
+  {time:'14:00–16:00', activity:'알렉산더테크닉', building:'전통예술원 본관', room:'112호', professors:['이승아'], students: TEAM_P_817, note:'B팀(아래)은 14~16시 동안 134·113·116·143호를 15분 단위로 교차 이동하며 융합창작/소그룹 활동을 진행해요.'},
+  {time:'14:00–16:00', activity:'융합창작 (교차 로테이션)', building:'전통예술원 본관', room:'133호', professors:['강상구'], students: TEAM_Q_817, note:'4개 팀이 134·113·116·143호를 15분 단위로 교차 이동해요.'},
+  {time:'14:00–16:00', activity:'융합창작 (교차 로테이션)', building:'전통예술원 본관', room:'134호', professors:['이재하'], students: TEAM_Q_817, note:'4개 팀이 134·113·116·143호를 15분 단위로 교차 이동해요.'},
+
+  {time:'16:00–18:00', activity:'알렉산더테크닉', building:'전통예술원 본관', room:'112호', professors:['이승아'], students: TEAM_Q_817},
+  {time:'16:00–18:00', activity:'융합창작 (교차 로테이션)', building:'전통예술원 본관', room:'133호', professors:['강상구'], students: TEAM_P_817, note:'4개 팀이 134·113·116·143호를 15분 단위로 교차 이동해요.'},
+  {time:'16:00–18:00', activity:'융합창작 (교차 로테이션)', building:'전통예술원 본관', room:'134호', professors:['이재하'], students: TEAM_P_817, note:'4개 팀이 134·113·116·143호를 15분 단위로 교차 이동해요.'},
+
+  {time:'18:00–19:00', activity:'성장노트 작성 (가야금·거문고·해금)', building:'전통예술원 별관', room:'102호', professors:[], students:[...fieldStudents('가야금'),...fieldStudents('거문고'),...fieldStudents('해금')]},
+  {time:'18:00–19:00', activity:'성장노트 작성 (타악·판소리·연희)', building:'전통예술원 별관', room:'103호', professors:[], students:[...fieldStudents('타악'),...fieldStudents('판소리'),...fieldStudents('연희')]},
+];
+
 const SESSION_DAYS = [
   {date:'2026-07-29', label:'1회차 · 7/29', blocks: SESSION_BLOCKS_729},
   {date:'2026-08-15', label:'2회차 · 8/15', blocks: SESSION_BLOCKS_815},
+  {date:'2026-08-17', label:'3회차 · 8/17', blocks: SESSION_BLOCKS_817},
 ];
 
 
