@@ -214,6 +214,15 @@
     flex:1;min-width:180px;padding:10px 13px;border:1px solid var(--line);border-radius:var(--radius-sm);font-size:13.5px;background:#fff;
   }
   .toolbar input[type=text]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,146,47,.15);}
+  .search-wrap{position:relative;flex:1;min-width:180px;display:flex;}
+  .search-wrap input[type=text]{flex:1;min-width:0;padding-right:34px;}
+  .search-clear{
+    position:absolute;right:6px;top:50%;transform:translateY(-50%);
+    width:24px;height:24px;border:none;border-radius:50%;background:var(--cream-2);color:var(--ink-soft);
+    font-size:11px;font-weight:800;display:none;align-items:center;justify-content:center;transition:background .15s,color .15s;
+  }
+  .search-clear:hover{background:var(--line);color:var(--ink);}
+  .search-wrap.has-value .search-clear{display:flex;}
   .filter-btn{padding:8px 15px;border-radius:var(--radius-sm);border:1px solid var(--line);background:#fff;font-size:13px;font-weight:700;color:var(--ink-soft);transition:all .15s;}
   .filter-btn:hover{border-color:var(--gold);}
   .filter-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);}
@@ -532,7 +541,10 @@
         <p>이름·학교로 검색하거나 세부전공으로 필터링할 수 있어요. 카드를 클릭하면 상세 정보가 열립니다.</p>
       </div>
       <div class="toolbar">
-        <input type="text" id="sSearch" placeholder="이름 또는 학교로 검색...">
+        <div class="search-wrap">
+          <input type="text" id="sSearch" placeholder="이름 또는 학교로 검색...">
+          <button type="button" class="search-clear" id="sSearchClear" title="검색어 지우기">✕</button>
+        </div>
       </div>
       <div class="toolbar" id="sFieldFilters"></div>
       <div class="result-count" id="sResultCount"></div>
@@ -546,7 +558,10 @@
         <p>분야별로 정리되어 있어요. 카드를 클릭하면 이력·연락처·담당 클래스가 열립니다.</p>
       </div>
       <div class="toolbar">
-        <input type="text" id="fSearch" placeholder="이름 또는 소속으로 검색...">
+        <div class="search-wrap">
+          <input type="text" id="fSearch" placeholder="이름 또는 소속으로 검색...">
+          <button type="button" class="search-clear" id="fSearchClear" title="검색어 지우기">✕</button>
+        </div>
       </div>
       <div id="facultyWrap"></div>
     </div>
@@ -700,8 +715,9 @@ const SCHEDULE = [
   { label:'8/17 (월)', short:'8.17', date:'2026-08-17', sessions:[
     {start:'09:00',end:'13:00',title:'전공실기',note:'가야금·거문고·해금·연희·타악·판소리'},
     {start:'13:00',end:'14:00',title:'점심시간'},
-    {start:'14:00',end:'16:00',title:'알렉산더 테크닉 A · 융합창작 B',note:'두 그룹 동시 진행'},
-    {start:'16:00',end:'19:00',title:'융합창작 A · 알렉산더 테크닉 B',note:'그룹 교대'},
+    {start:'14:00',end:'16:00',title:'알렉산더 · 융합창작 (교차)',note:'22명·24명 두 그룹 교대 진행 · 융합창작 그룹은 4개 소팀이 15분 단위로 로테이션'},
+    {start:'16:00',end:'18:00',title:'융합창작 · 알렉산더 (교차)',note:'그룹 반대로 교대'},
+    {start:'18:00',end:'19:00',title:'성장노트 작성'},
   ]},
   { label:'8/23 (일)', short:'8.23', date:'2026-08-23', sessions:[
     {start:'09:00',end:'13:00',title:'전공실기',note:'가야금·거문고·해금·연희·타악·판소리'},
@@ -1366,7 +1382,23 @@ function renderStudents(){
     card.addEventListener('click', ()=> openStudentModal(card.getAttribute('data-name')));
   });
 }
-document.getElementById('sSearch').addEventListener('input', renderStudents);
+function wireSearchClear(inputId, clearId, onChange){
+  const input = document.getElementById(inputId);
+  const clearBtn = document.getElementById(clearId);
+  const wrap = input.closest('.search-wrap');
+  function syncClearVisibility(){
+    wrap.classList.toggle('has-value', input.value.length > 0);
+  }
+  input.addEventListener('input', ()=>{ syncClearVisibility(); onChange(); });
+  clearBtn.addEventListener('click', ()=>{
+    input.value = '';
+    syncClearVisibility();
+    onChange();
+    input.focus();
+  });
+  syncClearVisibility();
+}
+wireSearchClear('sSearch', 'sSearchClear', renderStudents);
 
 function openStudentModal(name){
   const s = STUDENTS.find(x=>x.name===name);
@@ -1391,7 +1423,8 @@ function nearestSessionDayIdx(){
   let bestIdx = 0, bestDiff = Infinity;
   SESSION_DAYS.forEach((d,i)=>{
     const diff = Math.abs(new Date(d.date+'T00:00:00') - today);
-    if(diff < bestDiff){ bestDiff = diff; bestIdx = i; }
+    // 거리가 같으면(정확히 중간인 경우) 더 최근/다가오는 날짜를 우선해요.
+    if(diff <= bestDiff){ bestDiff = diff; bestIdx = i; }
   });
   return bestIdx;
 }
@@ -1551,7 +1584,7 @@ function renderFaculty(){
     card.addEventListener('click', ()=> openFacultyModal(card.getAttribute('data-name')));
   });
 }
-document.getElementById('fSearch').addEventListener('input', renderFaculty);
+wireSearchClear('fSearch', 'fSearchClear', renderFaculty);
 
 function openFacultyModal(name){
   const f = FACULTY.find(x=>x.name===name);
@@ -1975,6 +2008,7 @@ function renderProfSchedule729(name){
 
 async function init(){
   await initNavMode();
+  state.detailDayIdx = nearestSessionDayIdx();
   renderPreviewDayTabs();
   renderNowStrip();
   measureTopbarHeight();
