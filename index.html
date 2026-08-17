@@ -315,10 +315,20 @@
   .alert-box b{color:var(--alert);}
   .mini-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:11px;}
   .mini-card{background:#fff;border:1px solid var(--line);border-radius:var(--radius-sm);padding:12px 14px;box-shadow:var(--shadow-sm);}
+  .mentor-card{cursor:pointer;transition:transform .15s, box-shadow .15s, border-color .15s;}
+  .mentor-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:var(--gold);}
   .mini-card .mc-name{font-weight:800;font-size:14px;}
   .mini-card .mc-role{color:var(--ink-soft);font-size:12px;margin-top:4px;line-height:1.55;}
   .mini-card .mc-phone{font-family:var(--mono);font-size:11.5px;color:var(--ink-soft);margin-top:7px;}
   .mini-card .mc-note{font-size:11px;color:#a9782a;font-weight:700;margin-top:4px;}
+  .mini-card.mentor-on-duty{
+    border-color:var(--gold);background:linear-gradient(160deg,#fff,var(--gold-soft) 260%);
+    box-shadow:0 0 0 1px var(--gold), var(--shadow-md);position:relative;
+  }
+  .mc-today-badge{
+    display:inline-block;background:var(--gold);color:var(--navy);font-size:10.5px;font-weight:800;
+    padding:2px 8px;border-radius:20px;margin-bottom:7px;letter-spacing:.2px;
+  }
   .mark-badge{display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;
     border-radius:6px;font-weight:800;font-size:12.5px;padding:0 6px;}
   .mark-o{background:var(--live-soft);color:var(--live);}
@@ -1740,18 +1750,33 @@ const OPS_TAB_RENDERERS = [
 ===================================================================== */
 function mentorsForField(field){ return LIFE_MENTORS.filter(m=>m.field===field); }
 
+function currentDayShortLabel(){
+  const idx = nearestSessionDayIdx();
+  const [y,m,d] = SESSION_DAYS[idx].date.split('-').map(Number);
+  return `${m}/${d}`; // '2026-08-17' -> '8/17'
+}
+function mentorOnDutyToday(m, todayLabel){
+  if(!m.note) return true; // 날짜 구분 없이 항상 담당
+  return m.note.includes(todayLabel);
+}
+
 function renderMentorsView(){
   document.getElementById('mentorCount').textContent = `(총 ${LIFE_MENTORS.length}명)`;
+  const todayLabel = currentDayShortLabel();
   const fields = [...new Set(LIFE_MENTORS.map(m=>m.field))];
   const groups = fields.map(field=>{
     const members = mentorsForField(field);
-    const cards = members.map(m=>`
-      <div class="mini-card">
+    const cards = members.map((m,i)=>{
+      const onDuty = mentorOnDutyToday(m, todayLabel);
+      return `
+      <div class="mini-card mentor-card ${onDuty?'mentor-on-duty':''}" data-field="${field}" data-name="${m.name}" role="button" tabindex="0">
+        ${onDuty?`<div class="mc-today-badge">${todayLabel} 담당</div>`:''}
         <div class="mc-name">${m.name}</div>
         <div class="mc-role">${m.org}</div>
         <div class="mc-phone">${m.phone}</div>
         ${m.note?`<div class="mc-note">${m.note}</div>`:''}
-      </div>`).join('');
+      </div>`;
+    }).join('');
     return `
       <div class="fac-section">
         <h3>${FIELD_ICON[field]||''} ${field} <span class="cnt">${members.length}명</span></h3>
@@ -1759,6 +1784,43 @@ function renderMentorsView(){
       </div>`;
   }).join('');
   document.getElementById('mentorsWrap').innerHTML = groups;
+  document.querySelectorAll('.mentor-card').forEach(card=>{
+    card.addEventListener('click', ()=> openMentorModal(card.getAttribute('data-name'), card.getAttribute('data-field')));
+    card.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openMentorModal(card.getAttribute('data-name'), card.getAttribute('data-field')); }
+    });
+  });
+}
+
+function openMentorModal(name, field){
+  const m = LIFE_MENTORS.find(x=>x.name===name && x.field===field);
+  if(!m) return;
+  const students = STUDENTS.filter(s=>s.field===field);
+  document.querySelector('.modal').classList.add('modal-wide');
+  document.getElementById('modalTitle').textContent = m.name;
+  document.getElementById('modalSub').textContent = `${FIELD_ICON[field]||''} ${field} 생활멘토${m.note? ' · '+m.note : ''}`;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-section">
+      <h4>멘토 정보</h4>
+      <div class="info-row"><div class="k">소속</div><div class="v">${m.org}</div></div>
+      <div class="info-row"><div class="k">연락처</div><div class="v" style="font-family:var(--mono);">${m.phone}</div></div>
+      ${m.note?`<div class="info-row"><div class="k">담당 일자</div><div class="v">${m.note}</div></div>`:'<div class="info-row"><div class="k">담당 일자</div><div class="v">전 회차</div></div>'}
+    </div>
+    <div class="modal-section">
+      <h4>담당 학생 (${students.length}명)</h4>
+      <div class="p-grid">
+        ${students.map(s=>`
+          <div class="p-card mentor-student-card" data-name="${s.name}">
+            <div class="p-name">${s.name}</div>
+            <div class="p-school">${s.school} · ${s.grade?s.grade+'학년':''}</div>
+          </div>`).join('')}
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('.mentor-student-card').forEach(card=>{
+    card.addEventListener('click', ()=> openStudentModal(card.getAttribute('data-name')));
+  });
+  document.getElementById('overlay').classList.add('show');
 }
 
 /* =====================================================================
